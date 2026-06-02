@@ -124,7 +124,7 @@ function App() {
             placeholder="Enter character name"
           />
 
-          {* Button to add character to the selected novel */}
+          {/* Button to add character to the selected novel */}
           <button onClick={addCharacter}>Add Character</button>
 
           {/* Display the list of characters for the selected novel */}
