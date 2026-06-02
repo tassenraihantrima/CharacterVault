@@ -31,12 +31,12 @@ function App() {
 
     // clear the input box
     setNovelTitle('')
+  }
 
-    //Delete
-    function deleteNovel(id) {
-      // keep every novel except the one with the matching id
-      setNovels(novels.filter(novel => novel.id !== id))
-    }
+  //Delete
+  function deleteNovel(id) {
+    // keep every novel except the one with the matching id
+    setNovels(novels.filter(novel => novel.id !== id))
   }
   return (
     <div>
@@ -60,7 +60,9 @@ function App() {
       {/* Display the list of novels */}
       <ul>
         {novels.map(novel => (
-          <li key={novel.id}>{novel.title}</li>
+          <li key={novel.id}>{novel.title}
+            <button onClick={() => deleteNovel(novel.id)}>X</button>
+          </li>
         ))}
       </ul>
     </div>
