@@ -4,9 +4,9 @@ import './App.css'
 function App() {
   //setNovels: a function that updates the novels array
   const [novels, setNovels] = useState([
-    { id: 1, title: 'Novel 1' },
-    { id: 2, title: 'Novel 2' },
-    { id: 3, title: 'Novel 3' }
+    { id: 1, title: "Royally Chosen" },
+    { id: 2, title: "Zinnia's Wedding Crasher" },
+    { id: 3, title: "Draven's Dilemma" }
   ])
 
   //novelTitle: whatever the user types in the input box
@@ -31,6 +31,12 @@ function App() {
 
     // clear the input box
     setNovelTitle('')
+
+    //Delete
+    function deleteNovel(id) {
+      // keep every novel except the one with the matching id
+      setNovels(novels.filter(novel => novel.id !== id))
+    }
   }
   return (
     <div>
