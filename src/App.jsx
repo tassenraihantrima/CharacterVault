@@ -113,7 +113,7 @@ function App() {
           <h3>Selected Novel</h3>
           <p>{selectedNovel.title}</p>
 
-          {* Character Section */}
+          {/* Character Section */}
           <h3>Characters</h3>
         
           {/* Input box for character name */}
