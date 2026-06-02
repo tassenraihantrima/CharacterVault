@@ -1,16 +1,42 @@
-# React + Vite
+# CharacterVault
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CharacterVault is a web application designed to help writers organize and track characters across novels and long-form stories.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Current Features
+- Create and manage novels
+- Store character information
+- Search for characters
+- View character details
 
-## React Compiler
+### Planned Features
+- Character relationship tracking
+- Character appearance history
+- Story continuity management
+- Chapter references
+- Relationship visualization
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React
+- Vite
+- JavaScript
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Motivation
+
+When writing long stories, it is easy to forget side characters, relationships, and important details introduced many chapters earlier.
+
+CharacterVault aims to provide a central place where writers can store character information, track relationships, and maintain story consistency throughout a novel.
+
+## Project Status
+
+Currently in development.
+
+## Future Goals
+
+- Add support for multiple novels
+- Implement character relationship graphs
+- Track character appearances by chapter
+- Add search and filtering functionality
+- Develop a full-stack version with a database backend
