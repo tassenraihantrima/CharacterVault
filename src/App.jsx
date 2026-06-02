@@ -12,6 +12,8 @@ function App() {
   //novelTitle: whatever the user types in the input box
   //setNovelTitle: a function that updates the input value
   const [novelTitle, setNovelTitle] = useState('')
+  //selectedNovel: the novel that the user clicks on
+  const [selectedNovel, setSelectedNovel] = useState(null)
 
   // this function runs when Create Novel button is clicked
   function createNovel() {
@@ -60,11 +62,18 @@ function App() {
       {/* Display the list of novels */}
       <ul>
         {novels.map(novel => (
-          <li key={novel.id}>{novel.title}
+          <li key={novel.id}> 
+            <button onClick={() => setSelectedNovel(novel)}> {novel.title} </button>
             <button onClick={() => deleteNovel(novel.id)}>X</button>
           </li>
         ))}
       </ul>
+      {selectedNovel && (
+        <div>
+          <h3>Selected Novel</h3>
+          <p>{selectedNovel.title}</p>
+        </div>
+      )}
     </div>
   )
 }
