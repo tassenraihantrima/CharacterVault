@@ -94,6 +94,33 @@ function App() {
     setCharacterRole('')
     setCharacterNotes('')
   }
+
+  // this function runs when the delete button next to a character is clicked
+  function deleteCharacter(characterId) {
+
+    // loops through all novels
+    const updatedNovels = novels.map(novel => {
+
+      //only modify the selected novel
+      if (novel.id === selectedNovel.id) {
+        return {
+          ...novel,
+
+          //keep every character except the one being deleted
+          characters: novel.characters.filter(character => character.id !== characterId)
+        }
+      }
+      return novel
+  })
+  
+    // update React State
+    setNovels(updatedNovels)
+
+    //find the updated selected novel
+    const updatedSelectedNovel = updatedNovels.find(novel => novel.id === selectedNovel.id)
+    setSelectedNovel(updatedSelectedNovel)
+  }
+  
   return (
     <div>
       {/* Main app title */}
@@ -159,7 +186,8 @@ function App() {
           <ul>
             {selectedNovel.characters.map((character) => (
               <li key={character.id}>
-                <strong>Name:</strong> {character.name} <br />
+                <strong>Name:</strong> {character.name} 
+                <button onClick={()=> deleteCharacter(character.id)}> X </button> <br />
                 <strong>Role:</strong> {character.role} <br />
                 <strong>Notes:</strong> {character.notes}
               </li>
