@@ -19,6 +19,12 @@ function App() {
   // characterName: whatever the user types in the character input box
   const [characterName, setCharacterName] = useState('')
 
+  //characterRole: the role of the character (protagonist, antagonist, etc.)
+  const [characterRole, setCharacterRole] = useState('')
+
+  //characterNotes: any additional notes about the character
+  const [characterNotes, setCharacterNotes] = useState('')
+
   // this function runs when Create Novel button is clicked
   function createNovel() {
     // if the input is empty or only spaces, do nothing 
@@ -65,7 +71,14 @@ function App() {
       if (novel.id === selectedNovel.id) {
         return {
           ...novel,
-          characters: [...novel.characters, characterName]
+          characters: [
+            ...novel.characters,
+          {
+            id: Date.now(),
+            name: characterName,
+            role: characterRole,
+            notes: characterNotes
+          }]
         }
       }
       return novel
@@ -78,6 +91,8 @@ function App() {
     setSelectedNovel(updatedSelectedNovel)
 
     setCharacterName('')
+    setCharacterRole('')
+    setCharacterNotes('')
   }
   return (
     <div>
@@ -123,14 +138,31 @@ function App() {
             onChange={e => setCharacterName(e.target.value)}
             placeholder="Enter character name"
           />
-
+          {/* Input box for character role */}
+          <input
+            type="text"
+            value={characterRole}
+            onChange={e => setCharacterRole(e.target.value)}
+            placeholder="Enter character role"
+          />
+          {/* Input box for character notes */}
+          <input
+            type="text"
+            value={characterNotes}
+            onChange={e => setCharacterNotes(e.target.value)}
+            placeholder="Enter character notes"
+          />
           {/* Button to add character to the selected novel */}
           <button onClick={addCharacter}>Add Character</button>
 
           {/* Display the list of characters for the selected novel */}
           <ul>
-            {selectedNovel.characters.map((character, index) => (
-              <li key={index}>{character}</li>
+            {selectedNovel.characters.map((character) => (
+              <li key={character.id}>
+                <strong>Name:</strong> {character.name} <br />
+                <strong>Role:</strong> {character.role} <br />
+                <strong>Notes:</strong> {character.notes}
+              </li>
             ))}
           </ul>
         </div>
