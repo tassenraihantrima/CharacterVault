@@ -2,134 +2,120 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  //setNovels: a function that updates the novels array
+  // novels: stores all novel objects
+  // setNovels: updates the novels array
   const [novels, setNovels] = useState([
     { id: 1, title: "Royally Chosen", characters: [] },
     { id: 2, title: "Zinnia's Wedding Crasher", characters: [] },
     { id: 3, title: "Draven's Dilemma", characters: [] }
   ])
 
-  //novelTitle: whatever the user types in the input box
-  //setNovelTitle: a function that updates the input value
+  // novelTitle: stores what user types for a new novel
   const [novelTitle, setNovelTitle] = useState('')
 
-  //selectedNovel: the novel that the user clicks on
-  const [selectedNovel, setSelectedNovel] = useState(null)
+  // selectedNovelId: stores ONLY the id of the clicked novel
+  const [selectedNovelId, setSelectedNovelId] = useState(null)
 
-  // characterName: whatever the user types in the character input box
+  // character input states
   const [characterName, setCharacterName] = useState('')
-
-  //characterRole: the role of the character (protagonist, antagonist, etc.)
   const [characterRole, setCharacterRole] = useState('')
-
-  //characterNotes: any additional notes about the character
   const [characterNotes, setCharacterNotes] = useState('')
 
-  // this function runs when Create Novel button is clicked
-  function createNovel() {
-    // if the input is empty or only spaces, do nothing 
-    if (!novelTitle.trim()) {
-      return
-    }
+  // Find the full selected novel object from novels array
+  const selectedNovel = novels.find(novel => novel.id === selectedNovelId)
 
-    // create a new novel object 
+  function createNovel() {
+    // Stop if input is empty
+    if (!novelTitle.trim()) return
+
+    // Create new novel object
     const newNovel = {
       id: Date.now(),
       title: novelTitle,
       characters: []
     }
 
-    // add the new novel to the novels array
+    // Add new novel to array
     setNovels([...novels, newNovel])
 
-    // clear the input box
+    // Clear input
     setNovelTitle('')
   }
 
-  //Delete
   function deleteNovel(id) {
-    // keep every novel except the one with the matching id
+    // Remove novel with matching id
     setNovels(novels.filter(novel => novel.id !== id))
 
-    // if the deleted novel is the selected one, clear the selection
-    if (selectedNovel && selectedNovel.id === id) {
-      setSelectedNovel(null)
+    // If deleted novel was selected, unselect it
+    if (selectedNovelId === id) {
+      setSelectedNovelId(null)
     }
   }
 
-  // this function runs when Add Character button is clicked
   function addCharacter() {
+    // Stop if no character name or no novel selected
+    if (!characterName.trim() || !selectedNovel) return
 
-    // if the character name is empty or only spaces, or if no novel is selected, do nothing
-    if (!characterName.trim() || !selectedNovel) {
-      return
+    // Create new character object
+    const newCharacter = {
+      id: Date.now(),
+      name: characterName,
+      role: characterRole,
+      notes: characterNotes
     }
 
-    // loops through all novels
+    // Update only the selected novel
     const updatedNovels = novels.map(novel => {
-      //find the selected novel
       if (novel.id === selectedNovel.id) {
         return {
           ...novel,
-          characters: [
-            ...novel.characters,
-          {
-            id: Date.now(),
-            name: characterName,
-            role: characterRole,
-            notes: characterNotes
-          }]
+          characters: [...novel.characters, newCharacter]
         }
       }
+
       return novel
     })
 
-    // update React State
+    // Save updated novels array
     setNovels(updatedNovels)
 
-    const updatedSelectedNovel = updatedNovels.find(novel => novel.id === selectedNovel.id)
-    setSelectedNovel(updatedSelectedNovel)
-
+    // Clear character input boxes
     setCharacterName('')
     setCharacterRole('')
     setCharacterNotes('')
   }
 
-  // this function runs when the delete button next to a character is clicked
   function deleteCharacter(characterId) {
+    // Stop if no novel is selected
+    if (!selectedNovel) return
 
-    // loops through all novels
+    // Update only the selected novel
     const updatedNovels = novels.map(novel => {
-
-      //only modify the selected novel
       if (novel.id === selectedNovel.id) {
         return {
           ...novel,
 
-          //keep every character except the one being deleted
+          // Keep every character except the one clicked
           characters: novel.characters.filter(character => character.id !== characterId)
         }
       }
-      return novel
-  })
-  
-    // update React State
-    setNovels(updatedNovels)
 
-    //find the updated selected novel
-    const updatedSelectedNovel = updatedNovels.find(novel => novel.id === selectedNovel.id)
-    setSelectedNovel(updatedSelectedNovel)
+      return novel
+    })
+
+    // Save updated novels array
+    setNovels(updatedNovels)
   }
-  
+
   return (
     <div>
       {/* Main app title */}
       <h1>CharacterVault</h1>
 
-      {/* Novel section title */}
+      {/* Novel section */}
       <h2>My Novels</h2>
 
-      {/* Input box for novel title */}
+      {/* Input for creating novel */}
       <input
         type="text"
         value={novelTitle}
@@ -137,58 +123,80 @@ function App() {
         placeholder="Enter novel title"
       />
 
-      {/* Button to create a new novel */}
+      {/* Create novel button */}
       <button onClick={createNovel}>Create Novel</button>
 
-      {/* Display the list of novels */}
+      {/* List of novels */}
       <ul>
         {novels.map(novel => (
-          <li key={novel.id}> 
-            <button onClick={() => setSelectedNovel(novel)}> {novel.title} </button>
-            <button onClick={() => deleteNovel(novel.id)}>X</button>
+          <li key={novel.id}>
+            {/* Select this novel */}
+            <button onClick={() => setSelectedNovelId(novel.id)}>
+              {novel.title}
+            </button>
+
+            {/* Delete this novel */}
+            <button onClick={() => deleteNovel(novel.id)}>
+              X
+            </button>
           </li>
         ))}
       </ul>
+
+      {/* Only show this section when a novel is selected */}
       {selectedNovel && (
         <div>
-          {/* Display selected novel */}
+          {/* Selected novel title */}
           <h3>Selected Novel</h3>
           <p>{selectedNovel.title}</p>
 
-          {/* Character Section */}
+          {/* Character form */}
           <h3>Characters</h3>
-        
-          {/* Input box for character name */}
+
+          {/* Character name input */}
           <input
             type="text"
             value={characterName}
             onChange={e => setCharacterName(e.target.value)}
             placeholder="Enter character name"
           />
-          {/* Input box for character role */}
+
+          {/* Character role input */}
           <input
             type="text"
             value={characterRole}
             onChange={e => setCharacterRole(e.target.value)}
             placeholder="Enter character role"
           />
-          {/* Input box for character notes */}
+
+          {/* Character notes input */}
           <input
             type="text"
             value={characterNotes}
             onChange={e => setCharacterNotes(e.target.value)}
             placeholder="Enter character notes"
           />
-          {/* Button to add character to the selected novel */}
+
+          {/* Add character button */}
           <button onClick={addCharacter}>Add Character</button>
 
-          {/* Display the list of characters for the selected novel */}
+          {/* Character list */}
           <ul>
-            {selectedNovel.characters.map((character) => (
+            {selectedNovel.characters.map(character => (
               <li key={character.id}>
-                <strong>Name:</strong> {character.name} 
-                <button onClick={()=> deleteCharacter(character.id)}> X </button> <br />
-                <strong>Role:</strong> {character.role} <br />
+                {/* Character delete button */}
+                <button onClick={() => deleteCharacter(character.id)}>
+                  X
+                </button>
+
+                <br />
+
+                <strong>Name:</strong> {character.name}
+                <br />
+
+                <strong>Role:</strong> {character.role}
+                <br />
+
                 <strong>Notes:</strong> {character.notes}
               </li>
             ))}
