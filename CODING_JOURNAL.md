@@ -407,6 +407,39 @@ Responsibilities:
 
 ---
 
+# Phase 8 – UI Refinement and Profile Tabs
+
+## Objective
+
+Improve the CharacterVault interface by organizing the character profile into separate tabs.
+
+## Features Implemented
+
+- Added profile tabs inside `CharacterProfile.jsx`
+- Separated character information into:
+  - Profile
+  - Where Used
+  - Relationships
+  - Timeline
+  - AI Tools
+- Moved scene/chapter tracking into its own tab
+- Added placeholder sections for future relationship mapping, timelines, and AI-assisted writing tools
+- Improved profile layout with a character avatar and section cards
+
+## Concepts Learned
+
+### Conditional Rendering
+
+React can show different sections depending on the current state.
+
+In this phase, `activeTab` controls which section appears on the screen.
+
+### UI Organization
+
+Instead of displaying every field in one long page, tabs make the interface easier to use and prepare the app for future expansion.
+
+---
+
 # Planned Improvements
 
 The application is structured for future expansion.
