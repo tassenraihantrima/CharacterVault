@@ -440,13 +440,41 @@ Instead of displaying every field in one long page, tabs make the interface easi
 
 ---
 
+# Phase 9 – Relationship Mapping
+
+## Objective
+
+Add basic relationship tracking so each character can store connections to other characters.
+
+## Features Implemented
+
+- Added relationship data to character profiles
+- Created a relationship form inside the Relationships tab
+- Allowed users to enter:
+  - Related character name
+  - Relationship type
+  - Relationship notes
+- Displayed relationships as cards
+- Added delete functionality for relationship entries
+
+## Concepts Learned
+
+### Nested State Updates
+
+Relationships are stored inside each character object, so updating them requires mapping through novels, then characters, then updating the selected character.
+
+### Data Modeling
+
+Each relationship is stored as an object with an id, related character name, type, and notes.
+
+--- 
+
 # Planned Improvements
 
 The application is structured for future expansion.
 
 Planned features include:
 
-- Relationship mapping
 - Character timeline
 - Character portraits
 - Favorite characters

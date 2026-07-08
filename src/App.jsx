@@ -11,10 +11,10 @@ function App() {
     return saved
       ? JSON.parse(saved)
       : [
-          { id: 1, title: 'Royally Chosen', characters: [] },
-          { id: 2, title: "Zinnia's Wedding Crasher", characters: [] },
-          { id: 3, title: "Draven's Dilemma", characters: [] }
-        ]
+        { id: 1, title: 'Royally Chosen', characters: [] },
+        { id: 2, title: "Zinnia's Wedding Crasher", characters: [] },
+        { id: 3, title: "Draven's Dilemma", characters: [] }
+      ]
   })
 
   // Save novels whenever they change
@@ -64,7 +64,8 @@ function App() {
     const newCharacter = {
       id: Date.now(),
       ...characterData,
-      whereUsed: []
+      whereUsed: [],
+      relationships: []
     }
 
     setNovels(
@@ -84,9 +85,9 @@ function App() {
       novels.map(novel =>
         novel.id === selectedNovel.id
           ? {
-              ...novel,
-              characters: novel.characters.filter(character => character.id !== characterId)
-            }
+            ...novel,
+            characters: novel.characters.filter(character => character.id !== characterId)
+          }
           : novel
       )
     )
@@ -104,13 +105,13 @@ function App() {
       novels.map(novel =>
         novel.id === selectedNovel.id
           ? {
-              ...novel,
-              characters: novel.characters.map(character =>
-                character.id === selectedCharacter.id
-                  ? { ...character, [field]: value }
-                  : character
-              )
-            }
+            ...novel,
+            characters: novel.characters.map(character =>
+              character.id === selectedCharacter.id
+                ? { ...character, [field]: value }
+                : character
+            )
+          }
           : novel
       )
     )
@@ -129,16 +130,47 @@ function App() {
       novels.map(novel =>
         novel.id === selectedNovel.id
           ? {
-              ...novel,
-              characters: novel.characters.map(character =>
-                character.id === selectedCharacter.id
-                  ? {
-                      ...character,
-                      whereUsed: [...character.whereUsed, newEntry]
-                    }
-                  : character
-              )
-            }
+            ...novel,
+            characters: novel.characters.map(character =>
+              character.id === selectedCharacter.id
+                ? {
+                  ...character,
+                  whereUsed: [...character.whereUsed, newEntry]
+                }
+                : character
+            )
+          }
+          : novel
+      )
+    )
+  }
+
+  // Add a relationship to the selected character
+  function addRelationship(relationshipData) {
+    if (!selectedNovel || !selectedCharacter) return
+
+    const newRelationship = {
+      id: Date.now(),
+      ...relationshipData
+    }
+
+    setNovels(
+      novels.map(novel =>
+        novel.id === selectedNovel.id
+          ? {
+            ...novel,
+            characters: novel.characters.map(character =>
+              character.id === selectedCharacter.id
+                ? {
+                  ...character,
+                  relationships: [
+                    ...(character.relationships || []),
+                    newRelationship
+                  ]
+                }
+                : character
+            )
+          }
           : novel
       )
     )
@@ -152,16 +184,41 @@ function App() {
       novels.map(novel =>
         novel.id === selectedNovel.id
           ? {
-              ...novel,
-              characters: novel.characters.map(character =>
-                character.id === selectedCharacter.id
-                  ? {
-                      ...character,
-                      whereUsed: character.whereUsed.filter(entry => entry.id !== entryId)
-                    }
-                  : character
-              )
-            }
+            ...novel,
+            characters: novel.characters.map(character =>
+              character.id === selectedCharacter.id
+                ? {
+                  ...character,
+                  whereUsed: character.whereUsed.filter(entry => entry.id !== entryId)
+                }
+                : character
+            )
+          }
+          : novel
+      )
+    )
+  }
+
+  // Delete a relationship from the selected character
+  function deleteRelationship(relationshipId) {
+    if (!selectedNovel || !selectedCharacter) return
+
+    setNovels(
+      novels.map(novel =>
+        novel.id === selectedNovel.id
+          ? {
+            ...novel,
+            characters: novel.characters.map(character =>
+              character.id === selectedCharacter.id
+                ? {
+                  ...character,
+                  relationships: (character.relationships || []).filter(
+                    relationship => relationship.id !== relationshipId
+                  )
+                }
+                : character
+            )
+          }
           : novel
       )
     )
@@ -199,6 +256,8 @@ function App() {
           onUpdateCharacter={updateCharacter}
           onAddWhereUsed={addWhereUsed}
           onDeleteWhereUsed={deleteWhereUsed}
+          onAddRelationship={addRelationship}
+          onDeleteRelationship={deleteRelationship}
         />
       </main>
     </div>
