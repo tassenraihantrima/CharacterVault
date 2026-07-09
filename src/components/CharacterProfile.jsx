@@ -6,7 +6,9 @@ function CharacterProfile({
     onAddWhereUsed,
     onDeleteWhereUsed,
     onAddRelationship,
-    onDeleteRelationship
+    onDeleteRelationship,
+    onAddTimelineEvent,
+    onDeleteTimelineEvent
 }) {
     // Controls which tab is currently open
     const [activeTab, setActiveTab] = useState('profile')
@@ -23,6 +25,12 @@ function CharacterProfile({
     const [relatedName, setRelatedName] = useState('')
     const [relationshipType, setRelationshipType] = useState('')
     const [relationshipNotes, setRelationshipNotes] = useState('')
+
+    // Inputs for the timeline form
+    const [timelineChapter, setTimelineChapter] = useState('')
+    const [timelineAge, setTimelineAge] = useState('')
+    const [timelineEvent, setTimelineEvent] = useState('')
+    const [timelineNotes, setTimelineNotes] = useState('')
 
     // If no character is selected, show empty message
     if (!character) {
@@ -70,6 +78,30 @@ function CharacterProfile({
             }. Their main conflict is ${character.conflict || 'not defined yet'}.`
 
         setAiOutput(summary)
+    }
+
+    // Adds a timeline event to the selected character
+    function handleAddTimelineEvent() {
+        if (
+            !timelineChapter.trim() &&
+            !timelineAge.trim() &&
+            !timelineEvent.trim() &&
+            !timelineNotes.trim()
+        ) {
+            return
+        }
+
+        onAddTimelineEvent({
+            chapter: timelineChapter,
+            age: timelineAge,
+            event: timelineEvent,
+            notes: timelineNotes
+        })
+
+        setTimelineChapter('')
+        setTimelineAge('')
+        setTimelineEvent('')
+        setTimelineNotes('')
     }
 
     return (
@@ -203,10 +235,50 @@ function CharacterProfile({
             {/* Timeline tab */}
             {activeTab === 'timeline' && (
                 <div className="sectionCard">
-                    <h3>Timeline</h3>
-                    <p className="emptyText">
-                        Future upgrade: track important character events across chapters.
-                    </p>
+                    <h3>Character Timeline</h3>
+
+                    <div className="formGrid">
+                        <input
+                            value={timelineChapter}
+                            onChange={e => setTimelineChapter(e.target.value)}
+                            placeholder="Chapter"
+                        />
+
+                        <input
+                            value={timelineAge}
+                            onChange={e => setTimelineAge(e.target.value)}
+                            placeholder="Character age"
+                        />
+                    </div>
+
+                    <input
+                        value={timelineEvent}
+                        onChange={e => setTimelineEvent(e.target.value)}
+                        placeholder="Timeline event"
+                    />
+
+                    <textarea
+                        value={timelineNotes}
+                        onChange={e => setTimelineNotes(e.target.value)}
+                        placeholder="What changed for this character?"
+                    />
+
+                    <button className="primaryButton" onClick={handleAddTimelineEvent}>
+                        Add Timeline Event
+                    </button>
+
+                    {(character.timeline || []).map(event => (
+                        <div key={event.id} className="timelineCard">
+                            <h4>{event.event || 'Untitled Event'}</h4>
+                            <p><strong>Chapter:</strong> {event.chapter || 'N/A'}</p>
+                            <p><strong>Age:</strong> {event.age || 'N/A'}</p>
+                            <p><strong>Notes:</strong> {event.notes}</p>
+
+                            <button onClick={() => onDeleteTimelineEvent(event.id)}>
+                                Delete
+                            </button>
+                        </div>
+                    ))}
                 </div>
             )}
 

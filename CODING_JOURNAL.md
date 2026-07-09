@@ -467,6 +467,40 @@ Relationships are stored inside each character object, so updating them requires
 
 Each relationship is stored as an object with an id, related character name, type, and notes.
 
+---
+
+# Phase 10 – Character Timeline
+
+## Objective
+
+Add timeline tracking so each character can store important events across the story.
+
+## Features Implemented
+
+- Added timeline data to character profiles
+- Created a Timeline tab inside `CharacterProfile.jsx`
+- Allowed users to enter:
+  - Chapter
+  - Character age
+  - Timeline event
+  - Event notes
+- Displayed timeline events as cards
+- Added delete functionality for timeline events
+
+## Concepts Learned
+
+### Nested Data Structures
+
+Timeline events are stored inside each character object. This keeps each character’s development connected to their profile.
+
+### Nested State Updates
+
+Updating timeline events requires mapping through novels, characters, and then updating only the selected character.
+
+### Story Development Modeling
+
+The timeline feature tracks how a character changes throughout the story, not just where they appear.
+
 --- 
 
 # Planned Improvements
@@ -475,7 +509,6 @@ The application is structured for future expansion.
 
 Planned features include:
 
-- Character timeline
 - Character portraits
 - Favorite characters
 - AI-assisted writing tools

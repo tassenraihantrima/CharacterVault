@@ -270,3 +270,20 @@ button:hover {
 .relationshipCard p {
   margin: 6px 0;
 }
+
+/* Timeline cards */
+.timelineCard {
+  background: #181b29;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 12px;
+  border-left: 4px solid #8b5cf6;
+}
+
+.timelineCard h4 {
+  margin: 0 0 8px;
+}
+
+.timelineCard p {
+  margin: 6px 0;
+}

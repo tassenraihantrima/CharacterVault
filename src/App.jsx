@@ -65,7 +65,8 @@ function App() {
       id: Date.now(),
       ...characterData,
       whereUsed: [],
-      relationships: []
+      relationships: [],
+      timeline: []
     }
 
     setNovels(
@@ -224,6 +225,57 @@ function App() {
     )
   }
 
+  // Add a timeline event to the selected character
+  function addTimelineEvent(eventData) {
+    if (!selectedNovel || !selectedCharacter) return
+
+    const newEvent = {
+      id: Date.now(),
+      ...eventData
+    }
+
+    setNovels(
+      novels.map(novel =>
+        novel.id === selectedNovel.id
+          ? {
+            ...novel,
+            characters: novel.characters.map(character =>
+              character.id === selectedCharacter.id
+                ? {
+                  ...character,
+                  timeline: [...(character.timeline || []), newEvent]
+                }
+                : character
+            )
+          }
+          : novel
+      )
+    )
+  }
+
+  // Delete a timeline event from the selected character
+  function deleteTimelineEvent(eventId) {
+    if (!selectedNovel || !selectedCharacter) return
+
+    setNovels(
+      novels.map(novel =>
+        novel.id === selectedNovel.id
+          ? {
+            ...novel,
+            characters: novel.characters.map(character =>
+              character.id === selectedCharacter.id
+                ? {
+                  ...character,
+                  timeline: (character.timeline || []).filter(event => event.id !== eventId)
+                }
+                : character
+            )
+          }
+          : novel
+      )
+    )
+  }
+
   return (
     <div className="app">
       <header className="topbar">
@@ -258,6 +310,8 @@ function App() {
           onDeleteWhereUsed={deleteWhereUsed}
           onAddRelationship={addRelationship}
           onDeleteRelationship={deleteRelationship}
+          onAddTimelineEvent={addTimelineEvent}
+          onDeleteTimelineEvent={deleteTimelineEvent}
         />
       </main>
     </div>
