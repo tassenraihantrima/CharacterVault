@@ -287,3 +287,35 @@ button:hover {
 .timelineCard p {
   margin: 6px 0;
 }
+
+/* Portrait upload controls */
+.portraitControls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* Custom upload button */
+.uploadButton {
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: #343849;
+  color: white;
+  font-size: 14px;
+}
+
+/* Hide default file input */
+.uploadButton input {
+  display: none;
+}
+
+/* Uploaded portrait image */
+.portraitImage {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #5f6fff;
+}

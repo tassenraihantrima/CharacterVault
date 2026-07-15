@@ -503,13 +503,44 @@ The timeline feature tracks how a character changes throughout the story, not ju
 
 --- 
 
+---
+
+# Phase 11 – Character Portraits
+
+## Objective
+
+Allow users to upload portraits for each character to make profiles more visual and personalized.
+
+## Features Implemented
+
+- Added portrait upload to character profiles
+- Displayed uploaded portraits in the profile header
+- Used a default letter avatar when no portrait is uploaded
+- Added the ability to remove a portrait
+- Stored portrait data as part of each character object
+
+## Concepts Learned
+
+### File Inputs
+
+HTML file inputs allow users to select files from their computer.
+
+### FileReader API
+
+The FileReader API converts uploaded image files into a Base64 string.
+
+### Persistent Images
+
+Because the portrait is saved inside the character object, it is also saved in LocalStorage with the rest of the app data.
+
+--- 
+
 # Planned Improvements
 
 The application is structured for future expansion.
 
 Planned features include:
 
-- Character portraits
 - Favorite characters
 - AI-assisted writing tools
 - Backend API

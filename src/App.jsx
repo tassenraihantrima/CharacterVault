@@ -66,7 +66,8 @@ function App() {
       ...characterData,
       whereUsed: [],
       relationships: [],
-      timeline: []
+      timeline: [],
+      portrait: ''
     }
 
     setNovels(
