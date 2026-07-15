@@ -319,3 +319,166 @@ button:hover {
   object-fit: cover;
   border: 2px solid #5f6fff;
 }
+
+/* Header for the character panel */
+.characterPanelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Shows the total number of characters in the selected novel */
+.characterCount {
+  min-width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #5f6fff;
+  color: white;
+  font-weight: bold;
+}
+
+/* Search area spacing */
+.searchSection {
+  margin-top: 16px;
+}
+
+/* Two-column filter and sorting controls */
+.filterGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* Styling for dropdown menus */
+select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border: 1px solid #44485a;
+  border-radius: 8px;
+  background: #11131d;
+  color: white;
+}
+
+/* Search results count and reset button */
+.searchSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0 18px;
+  color: #aaaec0;
+  font-size: 14px;
+}
+
+/* Secondary button used for reset and clear actions */
+.secondaryButton {
+  background: #343849;
+}
+
+.secondaryButton:hover {
+  background: #4a5066;
+}
+
+/* Separates the character form from search controls */
+.addCharacterSection {
+  padding-top: 16px;
+  border-top: 1px solid #303449;
+}
+
+/* Character result cards */
+.characterCards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Individual character card */
+.characterCard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: #242737;
+  border-radius: 12px;
+}
+
+/* Highlights the currently selected character */
+.characterCard.selectedCard {
+  outline: 2px solid #5f6fff;
+}
+
+/* Main clickable section of each card */
+.characterMain {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+}
+
+/* Stops the card background from changing on hover */
+.characterMain:hover {
+  background: transparent;
+}
+
+/* Character information inside the card */
+.characterCardDetails {
+  min-width: 0;
+}
+
+/* Character name */
+.characterCardDetails h4 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Character role */
+.characterCardDetails p {
+  margin: 4px 0;
+  color: #c7cada;
+  font-size: 14px;
+}
+
+/* Character age */
+.characterCardDetails small {
+  color: #9296aa;
+}
+
+/* Portrait displayed in the character list */
+.characterListPortrait {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #5f6fff;
+}
+
+/* Message displayed when no results match */
+.noResults {
+  padding: 24px 14px;
+  text-align: center;
+  background: #242737;
+  border-radius: 12px;
+  color: #a6a9ba;
+}
+
+/* Makes filters stack on narrow screens */
+@media (max-width: 500px) {
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .searchSummary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

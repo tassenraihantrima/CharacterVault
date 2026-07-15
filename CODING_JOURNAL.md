@@ -533,6 +533,61 @@ The FileReader API converts uploaded image files into a Base64 string.
 
 Because the portrait is saved inside the character object, it is also saved in LocalStorage with the rest of the app data.
 
+---
+
+# Phase 12 – Advanced Search, Filtering, and Sorting
+
+## Objective
+
+Improve character navigation by allowing users to search, filter, and sort characters inside the selected novel.
+
+## Features Implemented
+
+- Expanded character search across:
+  - Name
+  - Role
+  - Age
+  - Personality
+  - Goal
+  - Conflict
+  - Notes
+- Added dynamic role filtering
+- Added sorting by:
+  - Name from A–Z
+  - Name from Z–A
+  - Age from low to high
+  - Age from high to low
+- Added a character result count
+- Added reset and clear-search controls
+- Added an empty state when no characters match
+- Displayed character portraits inside search results
+
+## Concepts Learned
+
+### Derived Data
+
+Search results do not need to be stored separately in React state.
+
+Instead, the displayed character list is derived from the original character data using search, filter, and sorting settings.
+
+### Array Filtering
+
+The `.filter()` method creates a new array containing only characters that match the search term and selected role.
+
+### Array Sorting
+
+The `.sort()` method organizes character results alphabetically or numerically.
+
+A copy of the character array is created before sorting so the original React state is not modified.
+
+### Dynamic Filter Options
+
+The role dropdown is generated from the roles already stored in the selected novel. Duplicate and empty roles are removed using a JavaScript `Set`.
+
+### Combined Search
+
+Multiple character fields are combined into one searchable text value, allowing one search bar to find matches across profile information.
+
 --- 
 
 # Planned Improvements
@@ -545,4 +600,3 @@ Planned features include:
 - AI-assisted writing tools
 - Backend API
 - PostgreSQL database
-- Advanced search and filtering
