@@ -64,6 +64,7 @@ function App() {
     const newCharacter = {
       id: Date.now(),
       ...characterData,
+      favorite: false,
       whereUsed: [],
       relationships: [],
       timeline: [],
@@ -144,6 +145,35 @@ function App() {
           }
           : novel
       )
+    )
+  }
+
+  // Adds or removes a character from favorites
+  function toggleFavorite(characterId) {
+    // A novel must be selected before changing a character
+    if (!selectedNovel) return
+
+    setNovels(
+      novels.map(novel => {
+        // Leave every other novel unchanged
+        if (novel.id !== selectedNovel.id) {
+          return novel
+        }
+
+        return {
+          ...novel,
+          // Find and update only the clicked character
+          characters: novel.characters.map(character =>
+            character.id === characterId
+              ? {
+                ...character,
+                // Change true to false or false to true
+                favorite: !character.favorite
+              }
+              : character
+          )
+        }
+      })
     )
   }
 
@@ -302,6 +332,7 @@ function App() {
           onSelectCharacter={setSelectedCharacterId}
           onAddCharacter={addCharacter}
           onDeleteCharacter={deleteCharacter}
+          onToggleFavorite={toggleFavorite}
         />
 
         <CharacterProfile

@@ -588,6 +588,54 @@ The role dropdown is generated from the roles already stored in the selected nov
 
 Multiple character fields are combined into one searchable text value, allowing one search bar to find matches across profile information.
 
+---
+
+# Phase 13 – Favorite Characters
+
+## Objective
+
+Allow writers to mark important characters as favorites and find them more quickly.
+
+## Features Implemented
+
+- Added a favorite value to every character
+- Added star buttons to character cards
+- Allowed users to add and remove characters from favorites
+- Added a Favorites First sorting option
+- Added a Show Favorites Only filter
+- Displayed the total number of favorite characters
+- Saved favorite status using the existing LocalStorage system
+- Added visual styling for favorite character cards
+
+## Concepts Learned
+
+### Boolean Values
+
+Each character stores a `favorite` property with a value of either `true` or `false`.
+
+Clicking the favorite button reverses the current Boolean value.
+
+### Conditional Rendering
+
+The interface displays a filled star for favorite characters and an empty star for non-favorite characters.
+
+### Boolean Filtering
+
+The favorite-only filter uses `.filter()` to display characters whose favorite value is `true`.
+
+### Boolean Sorting
+
+Boolean values can be converted into numbers when sorting:
+
+- `true` becomes `1`
+- `false` becomes `0`
+
+This allows favorite characters to appear before non-favorite characters.
+
+### Persistent UI State
+
+Favorite status is stored inside each character object, so the existing LocalStorage system saves it automatically.
+
 --- 
 
 # Planned Improvements
@@ -596,7 +644,6 @@ The application is structured for future expansion.
 
 Planned features include:
 
-- Favorite characters
 - AI-assisted writing tools
 - Backend API
 - PostgreSQL database

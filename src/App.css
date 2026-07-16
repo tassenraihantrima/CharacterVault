@@ -482,3 +482,55 @@ select {
     flex-direction: column;
   }
 }
+
+/* Favorite-only filter row */
+.favoriteFilter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  background: #242737;
+  cursor: pointer;
+}
+
+/* Prevent the checkbox from using full input width */
+.favoriteFilter input {
+  width: auto;
+  margin: 0;
+  accent-color: #f4c542;
+}
+
+/* Text next to the favorite checkbox */
+.favoriteFilter span {
+  color: #d4d6e2;
+  font-size: 14px;
+}
+
+/* Star button displayed on every character card */
+.favoriteButton {
+  flex-shrink: 0;
+  padding: 4px;
+  background: transparent;
+  color: #8d91a5;
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* Prevent normal button hover background */
+.favoriteButton:hover {
+  background: transparent;
+  color: #f4c542;
+  transform: scale(1.1);
+}
+
+/* Gold appearance for favorite characters */
+.favoriteButton.favoriteActive {
+  color: #f4c542;
+}
+
+/* Adds a small gold accent to favorite cards */
+.characterCard:has(.favoriteActive) {
+  border-left: 3px solid #f4c542;
+}
