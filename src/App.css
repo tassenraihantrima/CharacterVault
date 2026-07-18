@@ -52,9 +52,12 @@ body {
   min-height: 75vh;
 }
 
-/* Big profile panel */
+/* Allows long profile content, including the relationship graph, to scroll */
 .profilePanel {
   min-width: 0;
+  max-height: 82vh;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 /* Headings */
@@ -533,4 +536,204 @@ select {
 /* Adds a small gold accent to favorite cards */
 .characterCard:has(.favoriteActive) {
   border-left: 3px solid #f4c542;
+}
+
+/* Container for all relationship cards */
+.relationshipList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Header inside each relationship card */
+.relationshipCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Relationship character name */
+.relationshipCardHeader h4 {
+  margin: 0 0 5px;
+}
+
+/* Small badge displaying the relationship type */
+.relationshipType {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #303652;
+  color: #ccd1ff;
+  font-size: 12px;
+}
+
+/* Space between saved cards and the graph */
+.relationshipGraphSection {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #3a3e50;
+}
+
+/* Graph heading and relationship count */
+.graphSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+/* Remove extra heading spacing */
+.graphSectionHeader h3 {
+  margin-bottom: 5px;
+}
+
+/* Description shown above the graph */
+.graphSectionHeader p {
+  color: #a5a9ba;
+  font-size: 14px;
+}
+
+/* Number of relationships displayed in the graph */
+.relationshipCount {
+  min-width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #5f6fff;
+  color: white;
+  font-weight: bold;
+}
+
+/*
+  React Flow needs a parent container with an explicit height.
+  Without this height, the graph may appear blank.
+*/
+.relationshipGraph {
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  border: 1px solid #3b4057;
+  border-radius: 14px;
+  background: #12141e;
+}
+
+/* Main selected-character node */
+.relationshipGraph .relationshipMainNode {
+  width: 170px;
+  padding: 15px;
+  border: 2px solid #7a86ff;
+  border-radius: 14px;
+  background: #5f6fff;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  white-space: pre-line;
+  box-shadow: 0 10px 24px rgba(95, 111, 255, 0.3);
+}
+
+/* Nodes representing related characters */
+.relationshipGraph .relationshipPersonNode {
+  width: 150px;
+  padding: 12px;
+  border: 1px solid #555d7f;
+  border-radius: 12px;
+  background: #272b3d;
+  color: white;
+  text-align: center;
+}
+
+/* Relationship labels shown on graph edges */
+.relationshipGraph .react-flow__edge-text {
+  fill: #f0f1fa;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Background behind each edge label */
+.relationshipGraph .react-flow__edge-textbg {
+  fill: #25293b;
+  fill-opacity: 1;
+}
+
+/* Relationship connecting lines */
+.relationshipGraph .react-flow__edge-path {
+  stroke: #929cff;
+  stroke-width: 2;
+}
+
+/* Style the React Flow control buttons for the dark interface */
+.relationshipGraph .react-flow__controls-button {
+  border-color: #3d4259;
+  background: #25293b;
+  fill: white;
+}
+
+/* Control-button hover */
+.relationshipGraph .react-flow__controls-button:hover {
+  background: #3a4057;
+}
+
+/* Dark minimap background */
+.relationshipGraph .react-flow__minimap {
+  background: #1c1f2c;
+  border: 1px solid #3b4057;
+}
+
+/* Empty state displayed before relationships exist */
+.graphEmptyState {
+  min-height: 260px;
+  display: grid;
+  place-content: center;
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed #444a63;
+  border-radius: 14px;
+  background: #181b27;
+}
+
+/* Empty-state heading */
+.graphEmptyState h4 {
+  margin: 0 0 8px;
+}
+
+/* Empty-state explanation */
+.graphEmptyState p {
+  color: #999daf;
+}
+
+/* Make graph slightly shorter on small devices */
+@media (max-width: 600px) {
+  .relationshipGraph {
+    height: 400px;
+  }
+
+  .graphSectionHeader {
+    flex-direction: column;
+  }
+}
+
+/* Make the React Flow minimap smaller and cleaner */
+.relationshipGraph .react-flow__minimap {
+  width: 140px;
+  height: 100px;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1c1f2c;
+  border: 1px solid #3b4057;
+}
+
+/* Improve node visibility inside the minimap */
+.relationshipGraph .react-flow__minimap-mask {
+  fill: rgba(95, 111, 255, 0.12);
+}
+
+/* Hide React Flow attribution label */
+.relationshipGraph .react-flow__attribution {
+  display: none;
 }

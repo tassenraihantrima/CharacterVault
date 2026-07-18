@@ -636,6 +636,61 @@ This allows favorite characters to appear before non-favorite characters.
 
 Favorite status is stored inside each character object, so the existing LocalStorage system saves it automatically.
 
+---
+
+# Phase 14 – Visual Relationship Graph
+
+## Objective
+
+Transform stored character relationships into an interactive visual graph.
+
+## Features Implemented
+
+- Installed and integrated React Flow
+- Created a reusable `RelationshipGraph` component
+- Displayed the selected character as the central graph node
+- Displayed related characters as surrounding nodes
+- Connected characters using labeled relationship edges
+- Added interactive node dragging
+- Added zooming and panning
+- Added graph navigation controls
+- Added a minimap
+- Updated the graph automatically when relationships are added or deleted
+- Added an empty state for characters without relationships
+
+## Concepts Learned
+
+### Nodes and Edges
+
+A relationship graph contains two main data types:
+
+- Nodes represent characters
+- Edges represent relationships between characters
+
+Each node needs an id, position, and label.
+
+Each edge needs a source node, target node, and optional relationship label.
+
+### Data Transformation
+
+Existing relationship objects are transformed into the node and edge format required by React Flow.
+
+### Coordinate-Based Positioning
+
+Related characters are positioned around the selected character using mathematical angles and x/y coordinates.
+
+### useMemo
+
+`useMemo` prevents graph nodes and edges from being recalculated unless the selected character data changes.
+
+### Third-Party Libraries
+
+React Flow provides reusable tools for building interactive node-based diagrams, including zoom controls, draggable nodes, backgrounds, and minimaps.
+
+### Reusable Components
+
+The relationship visualization was placed inside its own `RelationshipGraph.jsx` component so it remains separate from the profile form and can be expanded later.
+
 --- 
 
 # Planned Improvements
