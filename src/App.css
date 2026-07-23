@@ -878,3 +878,315 @@ select {
     margin-inline: 10px;
   }
 }
+
+/*
+  Three-column layout used for role, tag, and sorting filters.
+*/
+.advancedFilterGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/*
+  Small explanation displayed underneath inputs.
+*/
+.inputHelpText {
+  margin: 2px 0 10px;
+  color: #9296aa;
+  font-size: 12px;
+}
+
+/*
+  Groups the search result number and active-filter message.
+*/
+.searchSummary>div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/*
+  Indicates that the character list is currently filtered.
+*/
+.activeFilterText {
+  color: #9fa8ff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/*
+  Container holding tags inside a character card.
+*/
+.characterTagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+/*
+  Reusable tag badge displayed in character cards
+  and the character profile header.
+*/
+.characterTag {
+  display: inline-flex;
+  align-items: center;
+  max-width: 150px;
+  padding: 4px 8px;
+  overflow: hidden;
+  border: 1px solid #454c75;
+  border-radius: 999px;
+  background: #303652;
+  color: #d9dcff;
+  font-size: 11px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+  Allows the profile header text to use the remaining width.
+*/
+.profileHeaderDetails {
+  min-width: 0;
+  flex: 1;
+}
+
+/*
+  Removes unwanted spacing from the profile role text.
+*/
+.profileHeaderDetails p {
+  margin: 5px 0;
+  color: #b2b5c5;
+}
+
+/*
+  Displays a small tag preview underneath the character role.
+*/
+.profileHeaderTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+/*
+  Badge displayed when a character has more than four tags.
+*/
+.moreTagsBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #3d4053;
+  color: #bfc2d2;
+  font-size: 11px;
+}
+
+/*
+  Makes the active character-profile tab visually clear.
+*/
+.tabs button.activeTab {
+  background: #5f6fff;
+  color: white;
+}
+
+/*
+  Header inside the Tags tab.
+*/
+.tagSectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+/*
+  Removes extra spacing from the Tags heading.
+*/
+.tagSectionHeader h3 {
+  margin-bottom: 6px;
+}
+
+/*
+  Description underneath the Tags heading.
+*/
+.tagSectionHeader p {
+  max-width: 570px;
+  margin: 0;
+  color: #a6aabd;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/*
+  Circular badge showing the selected character's tag count.
+*/
+.tagCountBadge {
+  min-width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #5f6fff;
+  color: white;
+  font-weight: 700;
+}
+
+/*
+  Places the tag input and Add Tag button beside one another.
+*/
+.tagInputRow {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+/*
+  Allows the tag input to take most of the row width.
+*/
+.tagInputRow input {
+  flex: 1;
+}
+
+/*
+  Tag-add button.
+*/
+.tagAddButton {
+  flex-shrink: 0;
+  margin: 6px 0;
+  background: #5f6fff;
+}
+
+/*
+  Tag-add button hover state.
+*/
+.tagAddButton:hover {
+  background: #7583ff;
+}
+
+/*
+  Validation feedback displayed for empty or duplicate tags.
+*/
+.tagMessage {
+  margin: 8px 0;
+  padding: 9px 11px;
+  border: 1px solid #784153;
+  border-radius: 8px;
+  background: #452632;
+  color: #ffc6d2;
+  font-size: 13px;
+}
+
+/*
+  Empty state displayed before a character has tags.
+*/
+.tagEmptyState {
+  margin-top: 18px;
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed #454a63;
+  border-radius: 12px;
+  background: #181b27;
+}
+
+/*
+  Empty-state heading.
+*/
+.tagEmptyState h4 {
+  margin: 0 0 7px;
+}
+
+/*
+  Empty-state description.
+*/
+.tagEmptyState p {
+  margin: 0;
+  color: #999daf;
+}
+
+/*
+  Container for all editable tags in the Tags tab.
+*/
+.profileTagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/*
+  Larger editable tag badge.
+*/
+.editableTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 8px 7px 12px;
+  border: 1px solid #4a527e;
+  border-radius: 999px;
+  background: #303652;
+  color: #e2e4ff;
+  font-size: 14px;
+}
+
+/*
+  Small remove button inside an editable tag.
+*/
+.editableTag button {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  background: #464d70;
+  color: white;
+  line-height: 1;
+}
+
+/*
+  Remove-tag button hover state.
+*/
+.editableTag button:hover {
+  background: #8a3548;
+}
+
+/*
+  Prevent long tag names from breaking the card layout.
+*/
+.editableTag span {
+  max-width: 220px;
+  overflow-wrap: anywhere;
+}
+
+/*
+  Stack the three advanced filters into one column
+  on narrower screens.
+*/
+@media (max-width: 1200px) {
+  .advancedFilterGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*
+  Stack the tag input and button on small mobile screens.
+*/
+@media (max-width: 500px) {
+  .tagInputRow {
+    flex-direction: column;
+  }
+
+  .tagAddButton {
+    width: 100%;
+  }
+
+  .tagSectionHeader {
+    flex-direction: column;
+  }
+}

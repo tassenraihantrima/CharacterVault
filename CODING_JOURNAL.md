@@ -501,7 +501,6 @@ Updating timeline events requires mapping through novels, characters, and then u
 
 The timeline feature tracks how a character changes throughout the story, not just where they appear.
 
---- 
 
 ---
 
@@ -743,7 +742,109 @@ The dashboard was placed inside its own `StatisticsPanel.jsx` component so its p
 
 CSS Grid and media queries allow the statistic cards to adjust from six columns on large screens to one column on small mobile screens.
 
+
 --- 
+
+# Phase 16 – Character Tags and Advanced Filtering
+
+## Objective
+
+Improve character organization by adding custom tags and expanding the character search and filtering system.
+
+## Features Implemented
+
+- Added support for multiple custom tags for every character
+- Allowed tags to be entered during character creation
+- Created a Tags tab inside `CharacterProfile.jsx`
+- Allowed users to add new tags
+- Allowed users to remove existing tags
+- Prevented duplicate tags
+- Displayed tags as reusable badges
+- Expanded character search to include tags
+- Added filtering by custom tags
+- Added sorting by the number of tags
+- Allowed search, filtering, and sorting to work together
+- Automatically reset filters when switching novels
+- Maintained compatibility with characters created before the tagging system
+
+## Concepts Learned
+
+### Arrays
+
+Instead of storing a single label, each character now stores an array of tags.
+
+Example:
+
+```javascript
+tags: [
+    "Protagonist",
+    "Royal Family",
+    "Secret Identity"
+]
+```
+
+Using an array allows each character to have multiple descriptive tags that can be searched and filtered throughout the application.
+
+### Array Methods
+
+Several JavaScript array methods were used to organize and search character tags.
+
+- `.map()` transforms tag data
+- `.filter()` removes unwanted values
+- `.flatMap()` combines tags from multiple characters into one array
+- `.some()` checks whether a matching tag already exists
+
+These methods were also used to generate the available tag filter options automatically.
+
+### Derived Data
+
+The available tag filter is generated from the existing character data instead of being stored separately. This ensures that the filter always stays synchronized whenever characters or their tags are added, edited, or removed.
+
+### Combined Filtering
+
+Multiple filters can now be applied at the same time.
+
+The displayed character list is filtered using:
+
+- Search text
+- Character role
+- Character tags
+- Favorite status
+
+The filtered results are then sorted before being displayed.
+
+### Keyboard Events
+
+The Tags page allows users to press the Enter key to add a new tag.
+
+React's `onKeyDown` event improves the user experience by allowing tags to be added without clicking the Add button.
+
+### Defensive Programming
+
+Characters created before Phase 16 do not contain a `tags` property.
+
+Fallback values such as
+
+```javascript
+character.tags || []
+```
+
+allow older LocalStorage data to continue working correctly without causing application errors.
+
+### Reusable Components
+
+The same tag badge styling is reused throughout the application.
+
+Tag badges appear on:
+
+- Character cards
+- Character profile header
+- Tags management page
+
+Using reusable UI components keeps the application's design consistent while reducing duplicated code.
+
+---
+
 
 # Planned Improvements
 

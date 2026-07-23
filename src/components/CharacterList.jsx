@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function CharacterList({
     selectedNovel,
@@ -8,19 +8,23 @@ function CharacterList({
     onDeleteCharacter,
     onToggleFavorite
 }) {
-    // Stores text entered into the search bar
+
+    // Stores the text entered into the main character search field
     const [search, setSearch] = useState('')
 
     // Stores the currently selected role filter
     const [roleFilter, setRoleFilter] = useState('all')
 
-    // Stores the selected sorting method
+    // Stores the currently selected tag filter
+    const [tagFilter, setTagFilter] = useState('all')
+
+    // Stores the selected character sorting method
     const [sortOption, setSortOption] = useState('default')
 
     // Controls whether only favorite characters are displayed
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
 
-    // Character creation form inputs
+    // Basic character fields
     const [name, setName] = useState('')
     const [role, setRole] = useState('')
     const [age, setAge] = useState('')
@@ -29,7 +33,24 @@ function CharacterList({
     const [conflict, setConflict] = useState('')
     const [notes, setNotes] = useState('')
 
-    // Show an empty state when no novel has been selected
+    /*
+      The tags input accepts comma-separated tags.
+    */
+    const [tagsInput, setTagsInput] = useState('')
+
+    /*
+      Reset filters whenever the user changes novels. This prevents filters from one novel from making another
+      novel appear empty when it is selected.
+    */
+    useEffect(() => {
+        setSearch('')
+        setRoleFilter('all')
+        setTagFilter('all')
+        setSortOption('default')
+        setShowFavoritesOnly(false)
+    }, [selectedNovel?.id])
+
+    // Show instructions when no novel has been selected
     if (!selectedNovel) {
         return (
             <section className="panel characterPanel">
@@ -42,12 +63,45 @@ function CharacterList({
         )
     }
 
-    // Creates a new character
+    /*
+      Converts comma-separated text into a clean tag array. Duplicate tags are removed without caring about capitalization.
+    */
+    function createTagsFromInput(inputValue) {
+        // Split the text whenever a comma appears
+        const separatedTags = inputValue.split(',')
+
+        // Remove unnecessary spaces and empty values
+        const cleanedTags = separatedTags
+            .map(tag => tag.trim())
+            .filter(Boolean)
+
+        // Remove duplicate tags while keeping the first spelling entered
+        return cleanedTags.filter((tag, index, allTags) => {
+            return (
+                allTags.findIndex(
+                    currentTag =>
+                        currentTag.toLowerCase() === tag.toLowerCase()
+                ) === index
+            )
+        })
+    }
+
+    /*
+      Creates a new character using the form values.
+    */
     function handleAddCharacter() {
-        // Require at least a character name
+        // A character must have a name
         if (!name.trim()) return
 
-        // Send the character data to App.jsx
+        // Convert the tag input into a clean array
+        const newCharacterTags = createTagsFromInput(tagsInput)
+
+        /*
+          Send the finished character object to App.jsx.
+
+          App.jsx adds the id, favorite status, relationships,
+          timeline, portrait, and other default values.
+        */
         onAddCharacter({
             name: name.trim(),
             role: role.trim(),
@@ -55,10 +109,11 @@ function CharacterList({
             personality: personality.trim(),
             goal: goal.trim(),
             conflict: conflict.trim(),
-            notes: notes.trim()
+            notes: notes.trim(),
+            tags: newCharacterTags
         })
 
-        // Clear all character form inputs
+        // Clear every character form field after creation
         setName('')
         setRole('')
         setAge('')
@@ -66,20 +121,23 @@ function CharacterList({
         setGoal('')
         setConflict('')
         setNotes('')
+        setTagsInput('')
     }
 
-    // Clears search, filters, sorting, and favorite-only mode
+    /*
+      Clears every search, filter, and sorting option.
+    */
     function resetFilters() {
         setSearch('')
         setRoleFilter('all')
+        setTagFilter('all')
         setSortOption('default')
         setShowFavoritesOnly(false)
     }
 
     /*
-      Create a list of unique roles.
-      Example:
-      ["Antagonist", "Protagonist", "Supporting Character"]
+      Create a unique alphabetical list of all roles used
+      in the selected novel.
     */
     const availableRoles = [
         ...new Set(
@@ -87,28 +145,76 @@ function CharacterList({
                 .map(character => character.role?.trim())
                 .filter(Boolean)
         )
-    ].sort((a, b) => a.localeCompare(b))
+    ].sort((firstRole, secondRole) =>
+        firstRole.localeCompare(secondRole)
+    )
 
     /*
-      Search characters using multiple profile fields.
+      Gather all tags from all characters.
+
+      flatMap() takes arrays stored inside each character and
+      combines them into one large array.
+    */
+    const allCharacterTags = selectedNovel.characters.flatMap(
+        character => character.tags || []
+    )
+
+    /*
+      Create a unique alphabetical list of tags.
+      Tags are treated as duplicates regardless of capitalization.
+    */
+    const availableTags = allCharacterTags
+        .filter((tag, index, allTags) => {
+            return (
+                allTags.findIndex(
+                    currentTag =>
+                        currentTag.toLowerCase() === tag.toLowerCase()
+                ) === index
+            )
+        })
+        .sort((firstTag, secondTag) =>
+            firstTag.localeCompare(secondTag)
+        )
+
+    /*
+      Search characters using profile information and tags.
+
+      Search now checks:
+      - Name
+      - Role
+      - Age
+      - Personality
+      - Goal
+      - Conflict
+      - Notes
+      - Tags
     */
     let displayedCharacters = selectedNovel.characters.filter(character => {
-        const searchableText = `
-      ${character.name || ''}
-      ${character.role || ''}
-      ${character.age || ''}
-      ${character.personality || ''}
-      ${character.goal || ''}
-      ${character.conflict || ''}
-      ${character.notes || ''}
-    `.toLowerCase()
+        /*
+          Convert the tags array into normal text so it can be
+          searched using the same search field.
+        */
+        const tagText = (character.tags || []).join(' ')
 
-        return searchableText.includes(search.trim().toLowerCase())
+        // Combine all searchable information into one string
+        const searchableText = `
+            ${character.name || ''}
+            ${character.role || ''}
+            ${character.age || ''}
+            ${character.personality || ''}
+            ${character.goal || ''}
+            ${character.conflict || ''}
+            ${character.notes || ''}
+            ${tagText}
+        `.toLowerCase()
+
+        // Remove extra spaces and make the search case-insensitive
+        const normalizedSearch = search.trim().toLowerCase()
+
+        return searchableText.includes(normalizedSearch)
     })
 
-    /*
-      Filter by the selected character role.
-    */
+    // Filter characters by role when a specific role is selected
     if (roleFilter !== 'all') {
         displayedCharacters = displayedCharacters.filter(
             character => character.role === roleFilter
@@ -116,8 +222,18 @@ function CharacterList({
     }
 
     /*
-      Show only starred characters when favorite-only mode is enabled.
+      Keep only characters containing the selected tag.
+      The comparison ignores capitalization.
     */
+    if (tagFilter !== 'all') {
+        displayedCharacters = displayedCharacters.filter(character =>
+            (character.tags || []).some(
+                tag => tag.toLowerCase() === tagFilter.toLowerCase()
+            )
+        )
+    }
+
+    // Keep only favorite characters when the checkbox is selected
     if (showFavoritesOnly) {
         displayedCharacters = displayedCharacters.filter(
             character => character.favorite === true
@@ -125,65 +241,114 @@ function CharacterList({
     }
 
     /*
-      Sort characters.
-      A copied array is sorted so the original React state
-      is not modified.
+      Copy arrays before sorting.
     */
+
+    // Sort names alphabetically from A to Z
     if (sortOption === 'name-az') {
-        displayedCharacters = [...displayedCharacters].sort((a, b) =>
-            (a.name || '').localeCompare(b.name || '')
+        displayedCharacters = [...displayedCharacters].sort(
+            (firstCharacter, secondCharacter) =>
+                (firstCharacter.name || '').localeCompare(
+                    secondCharacter.name || ''
+                )
         )
     }
 
+    // Sort names alphabetically from Z to A
     if (sortOption === 'name-za') {
-        displayedCharacters = [...displayedCharacters].sort((a, b) =>
-            (b.name || '').localeCompare(a.name || '')
+        displayedCharacters = [...displayedCharacters].sort(
+            (firstCharacter, secondCharacter) =>
+                (secondCharacter.name || '').localeCompare(
+                    firstCharacter.name || ''
+                )
         )
     }
 
+    // Sort numeric ages from lowest to highest
     if (sortOption === 'age-low-high') {
-        displayedCharacters = [...displayedCharacters].sort((a, b) => {
-            const ageA =
-                a.age !== '' && Number.isFinite(Number(a.age))
-                    ? Number(a.age)
-                    : Number.MAX_SAFE_INTEGER
+        displayedCharacters = [...displayedCharacters].sort(
+            (firstCharacter, secondCharacter) => {
+                /*
+                  Characters without valid ages are placed at
+                  the bottom of the list.
+                */
+                const firstAge =
+                    firstCharacter.age !== '' &&
+                        Number.isFinite(Number(firstCharacter.age))
+                        ? Number(firstCharacter.age)
+                        : Number.MAX_SAFE_INTEGER
 
-            const ageB =
-                b.age !== '' && Number.isFinite(Number(b.age))
-                    ? Number(b.age)
-                    : Number.MAX_SAFE_INTEGER
+                const secondAge =
+                    secondCharacter.age !== '' &&
+                        Number.isFinite(Number(secondCharacter.age))
+                        ? Number(secondCharacter.age)
+                        : Number.MAX_SAFE_INTEGER
 
-            return ageA - ageB
-        })
+                return firstAge - secondAge
+            }
+        )
     }
 
+    // Sort numeric ages from highest to lowest
     if (sortOption === 'age-high-low') {
-        displayedCharacters = [...displayedCharacters].sort((a, b) => {
-            const ageA =
-                a.age !== '' && Number.isFinite(Number(a.age))
-                    ? Number(a.age)
-                    : -1
+        displayedCharacters = [...displayedCharacters].sort(
+            (firstCharacter, secondCharacter) => {
+                /*
+                  Characters without valid ages are placed at
+                  the bottom of the list.
+                */
+                const firstAge =
+                    firstCharacter.age !== '' &&
+                        Number.isFinite(Number(firstCharacter.age))
+                        ? Number(firstCharacter.age)
+                        : -1
 
-            const ageB =
-                b.age !== '' && Number.isFinite(Number(b.age))
-                    ? Number(b.age)
-                    : -1
+                const secondAge =
+                    secondCharacter.age !== '' &&
+                        Number.isFinite(Number(secondCharacter.age))
+                        ? Number(secondCharacter.age)
+                        : -1
 
-            return ageB - ageA
-        })
+                return secondAge - firstAge
+            }
+        )
     }
 
-    // Put starred characters before non-starred characters
+    // Place favorite characters before non-favorite characters
     if (sortOption === 'favorites-first') {
         displayedCharacters = [...displayedCharacters].sort(
-            (a, b) => Number(Boolean(b.favorite)) - Number(Boolean(a.favorite))
+            (firstCharacter, secondCharacter) =>
+                Number(Boolean(secondCharacter.favorite)) -
+                Number(Boolean(firstCharacter.favorite))
         )
     }
 
-    // Count all favorite characters in the selected novel
+    // Place characters with the most tags first
+    if (sortOption === 'most-tags') {
+        displayedCharacters = [...displayedCharacters].sort(
+            (firstCharacter, secondCharacter) =>
+                (secondCharacter.tags?.length || 0) -
+                (firstCharacter.tags?.length || 0)
+        )
+    }
+
+    // Count favorite characters inside the selected novel
     const favoriteCount = selectedNovel.characters.filter(
         character => character.favorite === true
     ).length
+
+    /*
+      Determine whether any filter is currently active.
+
+      This helps the interface explain why fewer characters
+      may be displayed.
+    */
+    const filtersAreActive =
+        search.trim() !== '' ||
+        roleFilter !== 'all' ||
+        tagFilter !== 'all' ||
+        showFavoritesOnly ||
+        sortOption !== 'default'
 
     return (
         <section className="panel characterPanel">
@@ -191,15 +356,21 @@ function CharacterList({
             <div className="characterPanelHeader">
                 <div>
                     <h2>Characters</h2>
-                    <p className="panelSubtitle">{selectedNovel.title}</p>
+
+                    <p className="panelSubtitle">
+                        {selectedNovel.title}
+                    </p>
                 </div>
 
-                <span className="characterCount">
+                <span
+                    className="characterCount"
+                    title="Total characters in this novel"
+                >
                     {selectedNovel.characters.length}
                 </span>
             </div>
 
-            {/* Character search */}
+            {/* Main character search */}
             <div className="searchSection">
                 <label htmlFor="characterSearch">
                     Search Characters
@@ -207,15 +378,19 @@ function CharacterList({
 
                 <input
                     id="characterSearch"
-                    type="text"
+                    type="search"
                     value={search}
                     onChange={event => setSearch(event.target.value)}
-                    placeholder="Search name, role, goal, conflict, notes..."
+                    placeholder="Search names, details, notes, or tags..."
                 />
             </div>
 
-            {/* Role filtering and sorting */}
-            <div className="filterGrid">
+            {/*
+              Role, tag, and sorting controls.
+              Three controls are displayed together on wider screens.
+            */}
+            <div className="advancedFilterGrid">
+                {/* Role filter */}
                 <div>
                     <label htmlFor="roleFilter">
                         Filter by Role
@@ -224,9 +399,13 @@ function CharacterList({
                     <select
                         id="roleFilter"
                         value={roleFilter}
-                        onChange={event => setRoleFilter(event.target.value)}
+                        onChange={event =>
+                            setRoleFilter(event.target.value)
+                        }
                     >
-                        <option value="all">All roles</option>
+                        <option value="all">
+                            All roles
+                        </option>
 
                         {availableRoles.map(characterRole => (
                             <option
@@ -239,6 +418,35 @@ function CharacterList({
                     </select>
                 </div>
 
+                {/* Tag filter */}
+                <div>
+                    <label htmlFor="tagFilter">
+                        Filter by Tag
+                    </label>
+
+                    <select
+                        id="tagFilter"
+                        value={tagFilter}
+                        onChange={event =>
+                            setTagFilter(event.target.value)
+                        }
+                    >
+                        <option value="all">
+                            All tags
+                        </option>
+
+                        {availableTags.map(tag => (
+                            <option
+                                key={tag}
+                                value={tag}
+                            >
+                                {tag}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Sorting menu */}
                 <div>
                     <label htmlFor="sortCharacters">
                         Sort Characters
@@ -247,7 +455,9 @@ function CharacterList({
                     <select
                         id="sortCharacters"
                         value={sortOption}
-                        onChange={event => setSortOption(event.target.value)}
+                        onChange={event =>
+                            setSortOption(event.target.value)
+                        }
                     >
                         <option value="default">
                             Default order
@@ -255,6 +465,10 @@ function CharacterList({
 
                         <option value="favorites-first">
                             Favorites first
+                        </option>
+
+                        <option value="most-tags">
+                            Most tags
                         </option>
 
                         <option value="name-az">
@@ -291,15 +505,23 @@ function CharacterList({
                 </span>
             </label>
 
-            {/* Search result summary */}
+            {/* Search and filtering summary */}
             <div className="searchSummary">
-                <span>
-                    {displayedCharacters.length}{' '}
-                    {displayedCharacters.length === 1
-                        ? 'character'
-                        : 'characters'}{' '}
-                    found
-                </span>
+                <div>
+                    <span>
+                        {displayedCharacters.length}{' '}
+                        {displayedCharacters.length === 1
+                            ? 'character'
+                            : 'characters'}{' '}
+                        found
+                    </span>
+
+                    {filtersAreActive && (
+                        <span className="activeFilterText">
+                            Filters active
+                        </span>
+                    )}
+                </div>
 
                 <button
                     type="button"
@@ -314,25 +536,32 @@ function CharacterList({
             <div className="addCharacterSection">
                 <h3>Add Character</h3>
 
+                {/* Basic character information */}
                 <div className="formGrid">
                     <input
                         type="text"
                         value={name}
-                        onChange={event => setName(event.target.value)}
+                        onChange={event =>
+                            setName(event.target.value)
+                        }
                         placeholder="Name"
                     />
 
                     <input
                         type="text"
                         value={role}
-                        onChange={event => setRole(event.target.value)}
+                        onChange={event =>
+                            setRole(event.target.value)
+                        }
                         placeholder="Role"
                     />
 
                     <input
                         type="text"
                         value={age}
-                        onChange={event => setAge(event.target.value)}
+                        onChange={event =>
+                            setAge(event.target.value)
+                        }
                         placeholder="Age"
                     />
 
@@ -348,21 +577,47 @@ function CharacterList({
                     <input
                         type="text"
                         value={goal}
-                        onChange={event => setGoal(event.target.value)}
+                        onChange={event =>
+                            setGoal(event.target.value)
+                        }
                         placeholder="Goal"
                     />
 
                     <input
                         type="text"
                         value={conflict}
-                        onChange={event => setConflict(event.target.value)}
+                        onChange={event =>
+                            setConflict(event.target.value)
+                        }
                         placeholder="Conflict"
                     />
                 </div>
 
+                {/* Tags entered as comma-separated text */}
+                <label htmlFor="newCharacterTags">
+                    Character Tags
+                </label>
+
+                <input
+                    id="newCharacterTags"
+                    type="text"
+                    value={tagsInput}
+                    onChange={event =>
+                        setTagsInput(event.target.value)
+                    }
+                    placeholder="hero, royal family, secret identity"
+                />
+
+                <p className="inputHelpText">
+                    Separate multiple tags using commas.
+                </p>
+
+                {/* General character notes */}
                 <textarea
                     value={notes}
-                    onChange={event => setNotes(event.target.value)}
+                    onChange={event =>
+                        setNotes(event.target.value)
+                    }
                     placeholder="Character notes"
                 />
 
@@ -375,11 +630,19 @@ function CharacterList({
                 </button>
             </div>
 
-            {/* Character cards */}
+            {/* Character result cards */}
             <div className="characterCards">
                 {displayedCharacters.length === 0 ? (
+                    /*
+                      Empty search-result state.
+                    */
                     <div className="noResults">
-                        <p>No matching characters found.</p>
+                        <h4>No matching characters</h4>
+
+                        <p>
+                            Try changing your search, role, tag,
+                            or favorite filter.
+                        </p>
 
                         <button
                             type="button"
@@ -390,8 +653,12 @@ function CharacterList({
                         </button>
                     </div>
                 ) : (
+                    /*
+                      Display every character that passed all
+                      search and filtering conditions.
+                    */
                     displayedCharacters.map(character => (
-                        <div
+                        <article
                             key={character.id}
                             className={
                                 character.id === selectedCharacterId
@@ -399,7 +666,7 @@ function CharacterList({
                                     : 'characterCard'
                             }
                         >
-                            {/* Star or unstar the character */}
+                            {/* Favorite star button */}
                             <button
                                 type="button"
                                 className={
@@ -424,7 +691,7 @@ function CharacterList({
                                 {character.favorite ? '★' : '☆'}
                             </button>
 
-                            {/* Clicking the main card selects the character */}
+                            {/* Main clickable character card content */}
                             <button
                                 type="button"
                                 className="characterMain"
@@ -432,7 +699,7 @@ function CharacterList({
                                     onSelectCharacter(character.id)
                                 }
                             >
-                                {/* Show portrait or default letter avatar */}
+                                {/* Portrait or default letter avatar */}
                                 {character.portrait ? (
                                     <img
                                         src={character.portrait}
@@ -448,23 +715,47 @@ function CharacterList({
                                 )}
 
                                 <div className="characterCardDetails">
+                                    {/* Character name */}
                                     <h4>
-                                        {character.name || 'Unnamed Character'}
+                                        {character.name ||
+                                            'Unnamed Character'}
                                     </h4>
 
+                                    {/* Character role */}
                                     <p>
-                                        {character.role || 'No role assigned'}
+                                        {character.role ||
+                                            'No role assigned'}
                                     </p>
 
+                                    {/* Character age */}
                                     <small>
                                         {character.age
                                             ? `Age ${character.age}`
                                             : 'Age not added'}
                                     </small>
+
+                                    {/* Character tag badges */}
+                                    {(character.tags || []).length > 0 && (
+                                        <div
+                                            className="characterTagList"
+                                            aria-label={`${character.name} tags`}
+                                        >
+                                            {(character.tags || []).map(
+                                                tag => (
+                                                    <span
+                                                        key={tag}
+                                                        className="characterTag"
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </button>
 
-                            {/* Delete character */}
+                            {/* Delete-character button */}
                             <button
                                 type="button"
                                 className="deleteButton"
@@ -472,10 +763,11 @@ function CharacterList({
                                     onDeleteCharacter(character.id)
                                 }
                                 aria-label={`Delete ${character.name}`}
+                                title="Delete character"
                             >
                                 ×
                             </button>
-                        </div>
+                        </article>
                     ))
                 )}
             </div>

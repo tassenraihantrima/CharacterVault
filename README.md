@@ -16,18 +16,23 @@ CharacterVault is a React web application designed to help writers organize nove
   - Goal
   - Conflict
   - Notes
-- Search characters across multiple profile fields
+  - Custom tags
+- Search characters across multiple profile fields, including tags
 - Filter characters by role
-- Sort characters alphabetically or by age
+- Filter characters by custom tags
+- Sort characters alphabetically, by age, favorite status, or number of tags
 - Mark important characters as favorites
 - Show favorite characters only
-- Sort favorite characters first
 - Upload and remove character portraits
+- Manage custom character tags
+- Display reusable tag badges throughout the application
 - Track where characters appear using chapter, scene, and scene-note entries
 - Add and delete character relationships
+- Visualize relationships using an interactive relationship graph
 - Track major character timeline events
+- View a novel statistics dashboard
 - Organize character information using profile tabs
-- Save novels, characters, portraits, relationships, timelines, and favorite status using LocalStorage
+- Save novels, characters, portraits, relationships, timelines, tags, and favorite status using LocalStorage
 - Responsive three-panel interface built with reusable React components
 
 ## Tech Stack
@@ -36,6 +41,7 @@ CharacterVault is a React web application designed to help writers organize nove
 - JavaScript
 - Vite
 - CSS
+- React Flow
 - LocalStorage
 - FileReader API
 
@@ -46,7 +52,9 @@ src/
 ├── components/
 │   ├── NovelList.jsx
 │   ├── CharacterList.jsx
-│   └── CharacterProfile.jsx
+│   ├── CharacterProfile.jsx
+│   ├── RelationshipGraph.jsx
+│   └── StatisticsPanel.jsx
 ├── App.jsx
 ├── App.css
 ├── index.css
@@ -78,16 +86,18 @@ src/
 - Creates new characters
 - Deletes characters
 - Searches character information
-- Filters characters by role
-- Sorts characters by name, age, or favorite status
+- Filters characters by role and tags
+- Sorts characters by name, age, favorite status, or number of tags
 - Displays character portraits
+- Displays character tag badges
 - Marks and unmarks favorite characters
 
 ### `CharacterProfile.jsx`
 
 - Displays and edits detailed character information
 - Uploads and removes character portraits
-- Organizes information into Profile, Where Used, Relationships, Timeline, and AI Tools tabs
+- Organizes information into Profile, Where Used, Relationships, Timeline, Tags, and AI Tools tabs
+- Manages custom character tags
 - Tracks chapter and scene appearances
 - Manages character relationships
 - Records character timeline events
@@ -118,19 +128,22 @@ The current version includes:
 - Detailed editable character profiles
 - Browser persistence using LocalStorage
 - Chapter and scene tracking
-- Relationship mapping
+- Relationship management
+- Interactive relationship graph
 - Timeline tracking
 - Character portrait uploads
 - Favorite characters
-- Search, filtering, and sorting
+- Character tags
+- Advanced search, filtering, and sorting
+- Novel statistics dashboard
 
 ## Planned Features
 
-- Interactive relationship graph
 - Story continuity checker
 - Character consistency checker
 - AI-powered character summaries
 - AI-assisted writing tools
+- JSON import and export
 - Node.js + Express backend
 - PostgreSQL database
 - User authentication
