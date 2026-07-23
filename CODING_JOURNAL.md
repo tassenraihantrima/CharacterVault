@@ -691,6 +691,58 @@ React Flow provides reusable tools for building interactive node-based diagrams,
 
 The relationship visualization was placed inside its own `RelationshipGraph.jsx` component so it remains separate from the profile form and can be expanded later.
 
+---
+
+# Phase 15 – Novel Statistics Dashboard
+
+## Objective
+
+Provide writers with an at-a-glance overview of the selected novel by calculating statistics from existing character data.
+
+## Features Implemented
+
+- Created a reusable `StatisticsPanel.jsx` component
+- Displayed the total number of characters
+- Counted characters marked as favorites
+- Calculated the total number of relationship entries
+- Counted character timeline events
+- Counted chapter and scene appearance entries
+- Calculated the average numeric character age
+- Automatically updated the dashboard when novel data changed
+- Added a responsive statistics-card layout
+
+## Concepts Learned
+
+### Derived Data
+
+The statistics are calculated from the existing novel and character data instead of being stored as separate state variables.
+
+This prevents duplicated information and ensures that dashboard values stay synchronized with the rest of the application.
+
+### Array Aggregation
+
+The dashboard uses JavaScript array methods to summarize character data:
+
+- `.map()` transforms character values
+- `.filter()` selects matching values
+- `.reduce()` combines multiple values into one total
+
+### Defensive Programming
+
+Optional chaining and fallback arrays prevent the dashboard from crashing when older characters do not contain relationships, timelines, or chapter references.
+
+### Numeric Data Validation
+
+Character ages are converted from strings into numbers. Empty and invalid values are removed before calculating the average.
+
+### Reusable Components
+
+The dashboard was placed inside its own `StatisticsPanel.jsx` component so its presentation and calculations remain separate from the main application logic.
+
+### Responsive Dashboard Design
+
+CSS Grid and media queries allow the statistic cards to adjust from six columns on large screens to one column on small mobile screens.
+
 --- 
 
 # Planned Improvements

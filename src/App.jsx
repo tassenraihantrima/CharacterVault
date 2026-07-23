@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import StatisticsPanel from './components/StatisticsPanel'
 import NovelList from './components/NovelList'
 import CharacterList from './components/CharacterList'
 import CharacterProfile from './components/CharacterProfile'
@@ -313,6 +314,8 @@ function App() {
         <h1>CharacterVault</h1>
         <p>Organize novels, characters, scenes, and story details.</p>
       </header>
+
+      <StatisticsPanel selectedNovel={selectedNovel} />
 
       <main className="layout">
         <NovelList
