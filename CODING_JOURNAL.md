@@ -855,3 +855,144 @@ Planned features include:
 - AI-assisted writing tools
 - Backend API
 - PostgreSQL database
+
+---
+
+# Phase 17 – AI Writing Assistant
+
+## Objective
+
+Expand the AI Tools tab into a writing assistant that uses saved character information to generate structured writing ideas and development prompts.
+
+## Features Implemented
+
+- Replaced the original AI Tools placeholder with a complete AI Writing Assistant interface
+- Added a writing tool selector with multiple generation modes
+- Added Character Summary generation
+- Added Personality Analysis
+- Added Character Improvement suggestions
+- Added Dialogue Sample generation
+- Added Story Arc generation
+- Added Relationship Analysis
+- Added Backstory generation
+- Added Conflict generation
+- Added Timeline Review
+- Added optional writer instructions
+- Added a simulated loading state
+- Added an empty output state
+- Added output status messages
+- Added a Clear button
+- Added a Copy button using the Clipboard API
+- Cleared generated output whenever the selected character changes
+- Used saved profile information, tags, relationships, and timeline events as writing context
+- Expanded the application layout to better support the AI workspace
+
+## Concepts Learned
+
+### Reusable Functions
+
+Each writing tool uses a separate function to generate its output.
+
+Examples include:
+
+```javascript
+createCharacterSummary()
+createPersonalityAnalysis()
+createDialogueSample()
+createTimelineReview()
+```
+
+Separating the logic into individual functions keeps the component easier to understand, easier to debug, and easier to extend with additional writing tools later.
+
+### Switch Statements
+
+A `switch` statement selects the correct generator based on the writing tool selected by the user.
+
+Example:
+
+```javascript
+switch (selectedAiTool) {
+  case "summary":
+    return createCharacterSummary()
+
+  case "dialogue":
+    return createDialogueSample()
+
+  case "timeline":
+    return createTimelineReview()
+
+  default:
+    return ""
+}
+```
+
+Using a switch statement keeps the generation logic organized instead of writing many nested `if` statements.
+
+### Loading State
+
+The `isGenerating` state controls the temporary loading interface.
+
+While generation is active:
+
+- Generate button becomes disabled
+- Loading animation appears
+- Previous output is hidden
+- User receives visual feedback that generation is in progress
+
+Although the writing assistant currently generates local responses, this structure matches how a real AI API will behave in a future phase.
+
+### Clipboard API
+
+The browser Clipboard API allows generated writing to be copied with one click.
+
+Example:
+
+```javascript
+navigator.clipboard.writeText(aiOutput)
+```
+
+This makes it easy for writers to copy generated ideas directly into another writing application.
+
+### Conditional Rendering
+
+Different interface sections appear depending on the application's current state.
+
+The AI panel can display:
+
+- Empty state
+- Loading state
+- Generated output
+- Status message
+- Copy button
+
+Conditional rendering allows one component to display different user experiences without navigating to another page.
+
+### Defensive Programming
+
+Character profiles may contain incomplete information.
+
+Helper functions check whether fields such as goals, conflicts, relationships, timeline events, or tags exist before generating text.
+
+Fallback messages are displayed whenever information is missing.
+
+This prevents undefined values and broken output.
+
+### State Reset
+
+Temporary AI output is automatically cleared whenever the user selects a different character.
+
+This prevents generated writing for one character from remaining visible after another character has been selected.
+
+### Responsive Layout
+
+The application layout was updated to provide more space for the new AI workspace.
+
+The writing assistant adjusts automatically for different browser sizes while keeping both the controls and generated output readable.
+
+## Current Limitation
+
+The writing assistant currently produces structured local responses using saved character information.
+
+No external AI model is being used yet.
+
+A future phase will connect the writing assistant to a secure backend API so prompts can be sent to a real AI model such as OpenAI.

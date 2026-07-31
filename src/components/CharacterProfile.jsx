@@ -11,43 +11,55 @@ function CharacterProfile({
     onAddTimelineEvent,
     onDeleteTimelineEvent
 }) {
-    // Controls which character-profile tab is currently visible
+    // Controls which profile tab is currently visible.
     const [activeTab, setActiveTab] = useState('profile')
 
+    // Inputs used by the Where Used tab.
     const [chapter, setChapter] = useState('')
     const [scene, setScene] = useState('')
     const [sceneNotes, setSceneNotes] = useState('')
 
+    // Inputs used by the Relationships tab.
     const [relatedName, setRelatedName] = useState('')
     const [relationshipType, setRelationshipType] = useState('')
     const [relationshipNotes, setRelationshipNotes] = useState('')
 
+    // Inputs used by the Timeline tab.
     const [timelineChapter, setTimelineChapter] = useState('')
     const [timelineAge, setTimelineAge] = useState('')
     const [timelineEvent, setTimelineEvent] = useState('')
     const [timelineNotes, setTimelineNotes] = useState('')
 
-    // Stores the new tag currently being typed
+    // Input used by the Tags tab.
     const [newTag, setNewTag] = useState('')
 
-    // Stores a validation message for duplicate or empty tags
-    const [tagMessage, setTagMessage] = useState('')
+    // Stores the currently selected AI writing tool.
+    const [selectedAiTool, setSelectedAiTool] = useState('summary')
 
-    // Stores the temporary locally generated character summary
+    // Stores optional instructions entered by the writer.
+    const [aiInstructions, setAiInstructions] = useState('')
+
+    // Stores the generated writing-assistant result.
     const [aiOutput, setAiOutput] = useState('')
 
+    // Tracks whether the local generator is currently running.
+    const [isGenerating, setIsGenerating] = useState(false)
+
+    // Stores a small validation or status message for the AI panel.
+    const [aiMessage, setAiMessage] = useState('')
+
     /*
-      Return to the Profile tab whenever a different character
-      is selected.
-    */
+     * Whenever the selected character changes, clear temporary UI values.
+     * Without this effect, an AI result generated for one character could remain visible after the user selects a different character.
+     */
     useEffect(() => {
-        setActiveTab('profile')
-        setNewTag('')
-        setTagMessage('')
         setAiOutput('')
+        setAiInstructions('')
+        setAiMessage('')
+        setNewTag('')
     }, [character?.id])
 
-    // Display instructions when no character has been selected
+    // If no character is selected, display the existing empty state.
     if (!character) {
         return (
             <section className="panel profilePanel">
@@ -60,104 +72,109 @@ function CharacterProfile({
         )
     }
 
-    // Handles a character portrait upload
+    /*
+     * Returns a cleaned value for character information.
+     */
+    function getCharacterValue(value, fallback) {
+        if (typeof value !== 'string') {
+            return fallback
+        }
+
+        const cleanedValue = value.trim()
+
+        return cleanedValue || fallback
+    }
+
+    /*
+     * Returns the character's tags as a readable sentence.
+     */
+    function getTagText() {
+        const tags = character.tags || []
+
+        if (tags.length === 0) {
+            return 'No custom tags have been added.'
+        }
+
+        return tags.join(', ')
+    }
+
+    /*
+     * Returns a readable description of the character's relationships.
+     */
+    function getRelationshipText() {
+        const relationships = character.relationships || []
+
+        if (relationships.length === 0) {
+            return 'No relationships have been recorded.'
+        }
+
+        return relationships
+            .map(relationship => {
+                const name =
+                    relationship.relatedName || 'Unnamed character'
+
+                const type =
+                    relationship.type || 'unspecified relationship'
+
+                return `${name} (${type})`
+            })
+            .join(', ')
+    }
+
+    /*
+     * Returns a readable list of major timeline events.
+     */
+    function getTimelineText() {
+        const timeline = character.timeline || []
+
+        if (timeline.length === 0) {
+            return 'No timeline events have been recorded.'
+        }
+
+        return timeline
+            .slice(0, 4)
+            .map(event => {
+                const title = event.event || 'Untitled event'
+                const chapter = event.chapter
+                    ? `Chapter ${event.chapter}`
+                    : 'Unknown chapter'
+
+                return `${title} — ${chapter}`
+            })
+            .join('; ')
+    }
+
+    /*
+     * Handles image uploads for the selected character.
+     */
     function handlePortraitUpload(event) {
-        // Retrieve the first uploaded file
+        // Get the first selected file.
         const file = event.target.files[0]
 
-        // Stop when no file was selected
+        // Stop if no image was selected.
         if (!file) return
 
-        /*
-          FileReader converts the selected image into a Base64
-          string that can be stored inside LocalStorage.
-        */
+        // Create a FileReader to convert the image into a Base64 string.
         const reader = new FileReader()
 
-        // Save the converted image after FileReader finishes
+        // This function runs after the file has been converted.
         reader.onloadend = () => {
             onUpdateCharacter('portrait', reader.result)
         }
 
-        // Begin converting the image
+        // Begin reading the file.
         reader.readAsDataURL(file)
     }
 
-    // Removes the saved character portrait
+    // Removes the selected character's portrait.
     function removePortrait() {
         onUpdateCharacter('portrait', '')
     }
 
     /*
-      Adds one new tag to the selected character.
-    */
-    function handleAddTag() {
-        // Remove spaces from the beginning and end
-        const cleanedTag = newTag.trim()
-
-        // Do not save an empty tag
-        if (!cleanedTag) {
-            setTagMessage('Enter a tag before adding it.')
-            return
-        }
-
-        // Safely retrieve the current tags from old and new characters
-        const currentTags = character.tags || []
-
-        /*
-          Check whether the character already has this tag.
-        */
-        const tagAlreadyExists = currentTags.some(
-            tag => tag.toLowerCase() === cleanedTag.toLowerCase()
-        )
-
-        // Stop duplicate tags from being added
-        if (tagAlreadyExists) {
-            setTagMessage('This character already has that tag.')
-            return
-        }
-
-        // Save the updated tags array through App.jsx
-        onUpdateCharacter('tags', [
-            ...currentTags,
-            cleanedTag
-        ])
-
-        // Clear the input and validation message
-        setNewTag('')
-        setTagMessage('')
-    }
-
-    /*
-      Allows the Enter key to add a tag without submitting or
-      refreshing the page.
-    */
-    function handleTagKeyDown(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault()
-            handleAddTag()
-        }
-    }
-
-    /*
-      Removes one tag from the selected character.
-    */
-    function handleDeleteTag(tagToDelete) {
-        // Keep every tag except the clicked tag
-        const updatedTags = (character.tags || []).filter(
-            tag => tag !== tagToDelete
-        )
-
-        // Save the updated tag array
-        onUpdateCharacter('tags', updatedTags)
-
-        // Remove any old validation message
-        setTagMessage('')
-    }
-
-    // Adds a new chapter and scene appearance
+     * Adds a chapter or scene appearance.
+     */
     function handleAddWhereUsed() {
-        // Require at least one completed field
         if (
             !chapter.trim() &&
             !scene.trim() &&
@@ -166,22 +183,21 @@ function CharacterProfile({
             return
         }
 
-        // Send the entry to App.jsx
         onAddWhereUsed({
-            chapter: chapter.trim(),
-            scene: scene.trim(),
-            notes: sceneNotes.trim()
+            chapter,
+            scene,
+            notes: sceneNotes
         })
 
-        // Clear the form
         setChapter('')
         setScene('')
         setSceneNotes('')
     }
 
-    // Adds a new relationship to the selected character
+    /*
+     * Adds a relationship to the selected character.
+     */
     function handleAddRelationship() {
-        // Require at least one completed field
         if (
             !relatedName.trim() &&
             !relationshipType.trim() &&
@@ -190,22 +206,21 @@ function CharacterProfile({
             return
         }
 
-        // Send the relationship to App.jsx
         onAddRelationship({
-            relatedName: relatedName.trim(),
-            type: relationshipType.trim(),
-            notes: relationshipNotes.trim()
+            relatedName,
+            type: relationshipType,
+            notes: relationshipNotes
         })
 
-        // Clear the relationship form
         setRelatedName('')
         setRelationshipType('')
         setRelationshipNotes('')
     }
 
-    // Adds a new event to the selected character's timeline
+    /*
+     * Adds a timeline event to the selected character.
+     */
     function handleAddTimelineEvent() {
-        // Require at least one completed field
         if (
             !timelineChapter.trim() &&
             !timelineAge.trim() &&
@@ -215,15 +230,13 @@ function CharacterProfile({
             return
         }
 
-        // Send the timeline event to App.jsx
         onAddTimelineEvent({
-            chapter: timelineChapter.trim(),
-            age: timelineAge.trim(),
-            event: timelineEvent.trim(),
-            notes: timelineNotes.trim()
+            chapter: timelineChapter,
+            age: timelineAge,
+            event: timelineEvent,
+            notes: timelineNotes
         })
 
-        // Clear the timeline form
         setTimelineChapter('')
         setTimelineAge('')
         setTimelineEvent('')
@@ -231,29 +244,528 @@ function CharacterProfile({
     }
 
     /*
-      This remains a local placeholder until the real AI backend
-      is created in a later phase.
-    */
-    function generateSummary() {
-        const tagsText =
-            (character.tags || []).length > 0
-                ? ` Important tags include ${(character.tags || []).join(', ')}.`
-                : ''
+     * Adds one custom tag to the selected character.
+     */
+    function handleAddTag() {
+        const cleanedTag = newTag.trim()
 
-        const summary = `${character.name || 'This character'
-            } is a ${character.role || 'character'
-            } whose goal is ${character.goal || 'not defined yet'
-            }. Their main conflict is ${character.conflict || 'not defined yet'
-            }.${tagsText}`
+        // Do not add an empty tag.
+        if (!cleanedTag) return
 
-        setAiOutput(summary)
+        const currentTags = character.tags || []
+
+        // Check for an existing tag while ignoring capitalization.
+        const duplicateExists = currentTags.some(
+            tag => tag.toLowerCase() === cleanedTag.toLowerCase()
+        )
+
+        if (duplicateExists) {
+            setNewTag('')
+            return
+        }
+
+        // Save a new tags array through the existing update function.
+        onUpdateCharacter('tags', [...currentTags, cleanedTag])
+
+        setNewTag('')
+    }
+
+    /*
+     * Removes one custom tag from the selected character.
+     */
+    function handleDeleteTag(tagToDelete) {
+        const updatedTags = (character.tags || []).filter(
+            tag => tag !== tagToDelete
+        )
+
+        onUpdateCharacter('tags', updatedTags)
+    }
+
+    /*
+     * Allows Enter to add a tag without clicking the button.
+     */
+    function handleTagKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault()
+            handleAddTag()
+        }
+    }
+
+    /*
+     * Produces a local character summary.
+     * This does not call an external AI service yet. 
+     * The purpose for now is to build the writing-assistant interface and organize generation logic.
+     */
+    function createCharacterSummary() {
+        const name = getCharacterValue(
+            character.name,
+            'This unnamed character'
+        )
+
+        const role = getCharacterValue(
+            character.role,
+            'an undefined role'
+        )
+
+        const age = getCharacterValue(
+            character.age,
+            'an unspecified age'
+        )
+
+        const personality = getCharacterValue(
+            character.personality,
+            'Their personality has not been fully developed.'
+        )
+
+        const goal = getCharacterValue(
+            character.goal,
+            'Their central goal has not been defined.'
+        )
+
+        const conflict = getCharacterValue(
+            character.conflict,
+            'Their main conflict has not been defined.'
+        )
+
+        return `${name} is ${role} and is currently described as being ${age}. ${personality} ${goal} ${conflict} Character tags: ${getTagText()}`
+    }
+
+    /*
+     * Produces a structured personality analysis.
+     */
+    function createPersonalityAnalysis() {
+        const personality = getCharacterValue(
+            character.personality,
+            'No personality description is available.'
+        )
+
+        const goal = getCharacterValue(
+            character.goal,
+            'No central goal has been recorded.'
+        )
+
+        const conflict = getCharacterValue(
+            character.conflict,
+            'No main conflict has been recorded.'
+        )
+
+        return `PERSONALITY OVERVIEW
+
+${personality}
+
+POSSIBLE STRENGTH
+
+This character may appear determined because their behavior can be connected to the following goal: ${goal}
+
+POSSIBLE WEAKNESS
+
+Their strongest weakness may develop from the pressure created by this conflict: ${conflict}
+
+WRITING QUESTION
+
+What personal belief causes this character to make difficult choices, even when a safer option is available?`
+    }
+
+    /*
+     * Produces improvement suggestions based on incomplete profile fields.
+     */
+    function createImprovementSuggestions() {
+        const suggestions = []
+
+        if (!character.personality?.trim()) {
+            suggestions.push(
+                'Add specific personality traits instead of only broad labels.'
+            )
+        }
+
+        if (!character.goal?.trim()) {
+            suggestions.push(
+                'Give the character a clear goal that can be achieved or lost.'
+            )
+        }
+
+        if (!character.conflict?.trim()) {
+            suggestions.push(
+                'Add an internal or external conflict that prevents easy success.'
+            )
+        }
+
+        if (!character.notes?.trim()) {
+            suggestions.push(
+                'Use the notes field to record secrets, habits, fears, or contradictions.'
+            )
+        }
+
+        if ((character.relationships || []).length === 0) {
+            suggestions.push(
+                'Add at least one meaningful relationship that changes the character.'
+            )
+        }
+
+        if ((character.timeline || []).length === 0) {
+            suggestions.push(
+                'Add timeline events to show how the character changes throughout the novel.'
+            )
+        }
+
+        if ((character.tags || []).length === 0) {
+            suggestions.push(
+                'Add tags to describe the character’s function, themes, or important traits.'
+            )
+        }
+
+        if (suggestions.length === 0) {
+            suggestions.push(
+                'The profile contains strong foundational details. Focus next on contradictions, consequences, and gradual character change.'
+            )
+        }
+
+        return `CHARACTER IMPROVEMENT IDEAS
+
+${suggestions
+                .map((suggestion, index) => `${index + 1}. ${suggestion}`)
+                .join('\n')}`
+    }
+
+    /*
+     * Produces a short dialogue sample.
+     */
+    function createDialogueSample() {
+        const name = getCharacterValue(
+            character.name,
+            'Character'
+        )
+
+        const goal = getCharacterValue(
+            character.goal,
+            'something important'
+        )
+
+        const conflict = getCharacterValue(
+            character.conflict,
+            'the problem standing in their way'
+        )
+
+        const relationship =
+            (character.relationships || [])[0]
+
+        const otherCharacter =
+            relationship?.relatedName || 'Another Character'
+
+        return `${name}: "I did not come this far to walk away from ${goal}."
+
+${otherCharacter}: "And what happens when ${conflict} costs more than you expected?"
+
+${name}: "Then I will decide what matters more—the life I planned or the person I became while fighting for it."
+
+Writing note: Rewrite the sample to match the character's age, setting, speaking style, and relationship dynamics.`
+    }
+
+    /*
+     * Produces several possible story-arc directions.
+     */
+    function createStoryArcIdeas() {
+        const name = getCharacterValue(
+            character.name,
+            'The character'
+        )
+
+        const goal = getCharacterValue(
+            character.goal,
+            'their central goal'
+        )
+
+        const conflict = getCharacterValue(
+            character.conflict,
+            'their central conflict'
+        )
+
+        return `POSSIBLE STORY ARCS FOR ${name.toUpperCase()}
+
+1. Growth Arc
+
+${name} begins by pursuing ${goal}, but eventually realizes that overcoming ${conflict} requires changing a deeply held belief.
+
+2. Fall Arc
+
+${name} becomes increasingly obsessed with ${goal}. Their attempts to defeat ${conflict} gradually damage their relationships and sense of identity.
+
+3. Revelation Arc
+
+New information changes how ${name} understands ${goal}. The character must decide whether the original goal is still worth pursuing.
+
+4. Sacrifice Arc
+
+${name} gets close to achieving ${goal}, but must give it up to protect someone or prevent a greater consequence.`
+    }
+
+    /*
+     * Produces a relationship analysis from saved relationship data.
+     */
+    function createRelationshipAnalysis() {
+        const relationships = character.relationships || []
+
+        if (relationships.length === 0) {
+            return `RELATIONSHIP ANALYSIS
+
+No relationships have been recorded for this character.
+
+Add at least one relationship with a type and notes so the writing assistant can produce a more useful analysis.`
+        }
+
+        const relationshipDetails = relationships
+            .map((relationship, index) => {
+                const name =
+                    relationship.relatedName ||
+                    'Unnamed character'
+
+                const type =
+                    relationship.type ||
+                    'unspecified relationship'
+
+                const notes =
+                    relationship.notes ||
+                    'No relationship notes have been added.'
+
+                return `${index + 1}. ${name}
+Type: ${type}
+Notes: ${notes}`
+            })
+            .join('\n\n')
+
+        return `RELATIONSHIP ANALYSIS
+
+${relationshipDetails}
+
+WRITING QUESTIONS
+
+- Which relationship has the greatest power imbalance?
+- Which relationship changes the most during the novel?
+- What does this character hide from the people closest to them?
+- Which relationship creates the strongest emotional consequence?`
+    }
+
+    /*
+     * Produces a backstory framework.
+     */
+    function createBackstoryIdeas() {
+        const personality = getCharacterValue(
+            character.personality,
+            'their current personality'
+        )
+
+        const goal = getCharacterValue(
+            character.goal,
+            'their present goal'
+        )
+
+        const conflict = getCharacterValue(
+            character.conflict,
+            'their main conflict'
+        )
+
+        return `BACKSTORY FRAMEWORK
+
+FORMATIVE EXPERIENCE
+
+Create a past event that explains part of ${personality}.
+
+ORIGIN OF THE GOAL
+
+Describe the first moment when ${character.name || 'this character'} began wanting ${goal}.
+
+PAST FAILURE
+
+Give the character an earlier failure connected to ${conflict}. This failure can explain why the present conflict feels personal.
+
+HIDDEN DETAIL
+
+Add one secret the character believes would change how others see them.
+
+UNRESOLVED CONNECTION
+
+Connect the backstory to one current relationship so the past continues affecting the present story.`
+    }
+
+    /*
+     * Produces conflict ideas using the character's current profile.
+     */
+    function createConflictIdeas() {
+        const goal = getCharacterValue(
+            character.goal,
+            'their central goal'
+        )
+
+        const currentConflict = getCharacterValue(
+            character.conflict,
+            'their existing conflict'
+        )
+
+        return `CONFLICT IDEAS
+
+1. External Conflict
+
+A person or system gains the power to prevent the character from achieving ${goal}.
+
+2. Internal Conflict
+
+The character realizes that achieving ${goal} may require becoming someone they do not respect.
+
+3. Relationship Conflict
+
+A trusted person supports the goal but disagrees with the character's methods.
+
+4. Escalation
+
+The current conflict—${currentConflict}—creates a second problem that is more personal and harder to reverse.
+
+5. Impossible Choice
+
+The character must choose between the goal and protecting an important relationship.`
+    }
+
+    /*
+     * Produces a basic timeline consistency review.
+     */
+    function createTimelineReview() {
+        const timeline = character.timeline || []
+
+        if (timeline.length === 0) {
+            return `TIMELINE REVIEW
+
+No timeline events have been recorded.
+
+Add chapters, ages, event descriptions, and notes before checking the character's development timeline.`
+        }
+
+        const timelineDetails = timeline
+            .map((event, index) => {
+                const chapter =
+                    event.chapter || 'Unknown chapter'
+
+                const age =
+                    event.age || 'Unknown age'
+
+                const title =
+                    event.event || 'Untitled event'
+
+                return `${index + 1}. Chapter: ${chapter}
+Age: ${age}
+Event: ${title}`
+            })
+            .join('\n\n')
+
+        return `TIMELINE REVIEW
+
+${timelineDetails}
+
+MANUAL CONSISTENCY CHECK
+
+- Confirm that chapter numbers appear in the correct order.
+- Confirm that the character's age changes logically.
+- Check whether major emotional changes have enough development.
+- Check whether later behavior reflects earlier timeline events.
+- Add missing transition events where the character changes suddenly.`
+    }
+
+    /*
+     * Chooses the correct local generator based on the selected tool.
+     */
+    function buildAiOutput() {
+        switch (selectedAiTool) {
+            case 'summary':
+                return createCharacterSummary()
+
+            case 'personality':
+                return createPersonalityAnalysis()
+
+            case 'improvements':
+                return createImprovementSuggestions()
+
+            case 'dialogue':
+                return createDialogueSample()
+
+            case 'storyArc':
+                return createStoryArcIdeas()
+
+            case 'relationships':
+                return createRelationshipAnalysis()
+
+            case 'backstory':
+                return createBackstoryIdeas()
+
+            case 'conflict':
+                return createConflictIdeas()
+
+            case 'timeline':
+                return createTimelineReview()
+
+            default:
+                return createCharacterSummary()
+        }
+    }
+
+    /*
+     * Runs the selected writing assistant.
+     * A short timeout creates a visible loading state. This also prepares the UI
+     * for next update, when generation will become an asynchronous API request.
+     */
+    function handleGenerateAiOutput() {
+        setIsGenerating(true)
+        setAiMessage('')
+        setAiOutput('')
+
+        window.setTimeout(() => {
+            const generatedOutput = buildAiOutput()
+
+            const instructions = aiInstructions.trim()
+
+            const finalOutput = instructions
+                ? `${generatedOutput}
+
+CUSTOM WRITER INSTRUCTIONS
+
+${instructions}
+
+Note: Real AI instruction handling will be added when the backend API is connected.`
+                : generatedOutput
+
+            setAiOutput(finalOutput)
+            setIsGenerating(false)
+            setAiMessage('Writing assistant output generated.')
+        }, 500)
+    }
+
+    /*
+     * Clears the current writing-assistant output and instructions.
+     */
+    function clearAiWorkspace() {
+        setAiOutput('')
+        setAiInstructions('')
+        setAiMessage('')
+    }
+
+    /*
+     * Copies the generated output to the clipboard.
+     */
+    async function copyAiOutput() {
+        if (!aiOutput) return
+
+        try {
+            await navigator.clipboard.writeText(aiOutput)
+            setAiMessage('Output copied to clipboard.')
+        } catch {
+            setAiMessage(
+                'The browser could not copy the output automatically.'
+            )
+        }
     }
 
     return (
         <section className="panel profilePanel">
-            {/* Profile header */}
+            {/* Selected character header */}
             <div className="profileHeader">
-                {/* Display portrait or first-letter avatar */}
+                {/* Show the portrait when available. */}
                 {character.portrait ? (
                     <img
                         src={character.portrait}
@@ -261,6 +773,10 @@ function CharacterProfile({
                         className="portraitImage"
                     />
                 ) : (
+                    /*
+                     * Show the first letter of the character's name when no
+                     * portrait has been uploaded.
+                     */
                     <div className="largeAvatar">
                         {character.name
                             ? character.name[0].toUpperCase()
@@ -268,40 +784,32 @@ function CharacterProfile({
                     </div>
                 )}
 
-                <div className="profileHeaderDetails">
+                <div className="profileHeaderContent">
                     <h2>
                         {character.name || 'Unnamed Character'}
                     </h2>
 
-                    <p>
-                        {character.role || 'No role yet'}
-                    </p>
+                    <p>{character.role || 'No role yet'}</p>
 
-                    {/* Small tag preview inside the profile header */}
+                    {/* Preview the first few character tags. */}
                     {(character.tags || []).length > 0 && (
-                        <div className="profileHeaderTags">
+                        <div className="profileTagPreview">
                             {(character.tags || [])
                                 .slice(0, 4)
                                 .map(tag => (
                                     <span
                                         key={tag}
-                                        className="characterTag"
+                                        className="tagBadge"
                                     >
                                         {tag}
                                     </span>
                                 ))}
-
-                            {(character.tags || []).length > 4 && (
-                                <span className="moreTagsBadge">
-                                    +{character.tags.length - 4}
-                                </span>
-                            )}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Portrait upload controls */}
+            {/* Portrait controls */}
             <div className="portraitControls">
                 <label className="uploadButton">
                     Upload Portrait
@@ -323,12 +831,8 @@ function CharacterProfile({
                 )}
             </div>
 
-            {/* Profile navigation tabs */}
-            <div
-                className="tabs"
-                role="tablist"
-                aria-label="Character profile sections"
-            >
+            {/* Character profile navigation tabs */}
+            <div className="tabs">
                 <button
                     type="button"
                     className={
@@ -344,23 +848,13 @@ function CharacterProfile({
                 <button
                     type="button"
                     className={
-                        activeTab === 'tags'
-                            ? 'activeTab'
-                            : ''
-                    }
-                    onClick={() => setActiveTab('tags')}
-                >
-                    Tags ({(character.tags || []).length})
-                </button>
-
-                <button
-                    type="button"
-                    className={
                         activeTab === 'whereUsed'
                             ? 'activeTab'
                             : ''
                     }
-                    onClick={() => setActiveTab('whereUsed')}
+                    onClick={() =>
+                        setActiveTab('whereUsed')
+                    }
                 >
                     Where Used
                 </button>
@@ -386,9 +880,23 @@ function CharacterProfile({
                             ? 'activeTab'
                             : ''
                     }
-                    onClick={() => setActiveTab('timeline')}
+                    onClick={() =>
+                        setActiveTab('timeline')
+                    }
                 >
                     Timeline
+                </button>
+
+                <button
+                    type="button"
+                    className={
+                        activeTab === 'tags'
+                            ? 'activeTab'
+                            : ''
+                    }
+                    onClick={() => setActiveTab('tags')}
+                >
+                    Tags
                 </button>
 
                 <button
@@ -407,16 +915,12 @@ function CharacterProfile({
             {/* Profile tab */}
             {activeTab === 'profile' && (
                 <>
-                    {/* General information */}
                     <div className="sectionCard">
                         <h3>General</h3>
 
-                        <label htmlFor="profileName">
-                            Name
-                        </label>
+                        <label>Name</label>
 
                         <input
-                            id="profileName"
                             value={character.name || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -426,12 +930,9 @@ function CharacterProfile({
                             }
                         />
 
-                        <label htmlFor="profileRole">
-                            Role
-                        </label>
+                        <label>Role</label>
 
                         <input
-                            id="profileRole"
                             value={character.role || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -441,12 +942,9 @@ function CharacterProfile({
                             }
                         />
 
-                        <label htmlFor="profileAge">
-                            Age
-                        </label>
+                        <label>Age</label>
 
                         <input
-                            id="profileAge"
                             value={character.age || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -457,17 +955,15 @@ function CharacterProfile({
                         />
                     </div>
 
-                    {/* Character-development information */}
                     <div className="sectionCard">
                         <h3>Story Development</h3>
 
-                        <label htmlFor="profilePersonality">
-                            Personality
-                        </label>
+                        <label>Personality</label>
 
                         <textarea
-                            id="profilePersonality"
-                            value={character.personality || ''}
+                            value={
+                                character.personality || ''
+                            }
                             onChange={event =>
                                 onUpdateCharacter(
                                     'personality',
@@ -476,12 +972,9 @@ function CharacterProfile({
                             }
                         />
 
-                        <label htmlFor="profileGoal">
-                            Goal
-                        </label>
+                        <label>Goal</label>
 
                         <textarea
-                            id="profileGoal"
                             value={character.goal || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -491,12 +984,9 @@ function CharacterProfile({
                             }
                         />
 
-                        <label htmlFor="profileConflict">
-                            Conflict
-                        </label>
+                        <label>Conflict</label>
 
                         <textarea
-                            id="profileConflict"
                             value={character.conflict || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -506,12 +996,9 @@ function CharacterProfile({
                             }
                         />
 
-                        <label htmlFor="profileNotes">
-                            Notes
-                        </label>
+                        <label>Notes</label>
 
                         <textarea
-                            id="profileNotes"
                             value={character.notes || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -522,104 +1009,6 @@ function CharacterProfile({
                         />
                     </div>
                 </>
-            )}
-
-            {/* Tags tab */}
-            {activeTab === 'tags' && (
-                <div className="sectionCard">
-                    <div className="tagSectionHeader">
-                        <div>
-                            <h3>Character Tags</h3>
-
-                            <p>
-                                Organize this character using custom
-                                labels such as protagonist, villain,
-                                family, or secret identity.
-                            </p>
-                        </div>
-
-                        <span className="tagCountBadge">
-                            {(character.tags || []).length}
-                        </span>
-                    </div>
-
-                    {/* New-tag form */}
-                    <label htmlFor="newProfileTag">
-                        Add Tag
-                    </label>
-
-                    <div className="tagInputRow">
-                        <input
-                            id="newProfileTag"
-                            type="text"
-                            value={newTag}
-                            onChange={event => {
-                                setNewTag(event.target.value)
-                                setTagMessage('')
-                            }}
-                            onKeyDown={handleTagKeyDown}
-                            placeholder="Example: secret identity"
-                        />
-
-                        <button
-                            type="button"
-                            className="tagAddButton"
-                            onClick={handleAddTag}
-                        >
-                            Add Tag
-                        </button>
-                    </div>
-
-                    <p className="inputHelpText">
-                        Press Enter or select Add Tag.
-                    </p>
-
-                    {/* Tag validation feedback */}
-                    {tagMessage && (
-                        <p
-                            className="tagMessage"
-                            role="alert"
-                        >
-                            {tagMessage}
-                        </p>
-                    )}
-
-                    {/* Saved tags */}
-                    {(character.tags || []).length === 0 ? (
-                        <div className="tagEmptyState">
-                            <h4>No tags yet</h4>
-
-                            <p>
-                                Add tags to make this character easier
-                                to organize, search, and filter.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="profileTagList">
-                            {(character.tags || []).map(tag => (
-                                <div
-                                    key={tag}
-                                    className="editableTag"
-                                >
-                                    <span>
-                                        {tag}
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleDeleteTag(tag)
-                                        }
-                                        aria-label={`Remove ${tag} tag`}
-                                        title={`Remove ${tag}`}
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
             )}
 
             {/* Where Used tab */}
@@ -661,42 +1050,40 @@ function CharacterProfile({
                         Add Scene Use
                     </button>
 
-                    {(character.whereUsed || []).length === 0 && (
-                        <p className="emptyText">
-                            No chapter or scene appearances recorded.
-                        </p>
-                    )}
-
-                    {(character.whereUsed || []).map(entry => (
-                        <div
-                            key={entry.id}
-                            className="whereCard"
-                        >
-                            <h4>
-                                Chapter {entry.chapter || '?'}
-                            </h4>
-
-                            <p>
-                                <strong>Scene:</strong>{' '}
-                                {entry.scene || 'Not provided'}
-                            </p>
-
-                            <p>
-                                <strong>Notes:</strong>{' '}
-                                {entry.notes || 'No notes'}
-                            </p>
-
-                            <button
-                                type="button"
-                                className="deleteButton"
-                                onClick={() =>
-                                    onDeleteWhereUsed(entry.id)
-                                }
+                    {(character.whereUsed || []).map(
+                        entry => (
+                            <div
+                                key={entry.id}
+                                className="whereCard"
                             >
-                                Delete
-                            </button>
-                        </div>
-                    ))}
+                                <h4>
+                                    Chapter{' '}
+                                    {entry.chapter || '?'}
+                                </h4>
+
+                                <p>
+                                    <strong>Scene:</strong>{' '}
+                                    {entry.scene}
+                                </p>
+
+                                <p>
+                                    <strong>Notes:</strong>{' '}
+                                    {entry.notes}
+                                </p>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        onDeleteWhereUsed(
+                                            entry.id
+                                        )
+                                    }
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )
+                    )}
                 </div>
             )}
 
@@ -705,29 +1092,32 @@ function CharacterProfile({
                 <div className="sectionCard">
                     <h3>Relationship Mapping</h3>
 
-                    {/* Related character name */}
                     <input
                         value={relatedName}
                         onChange={event =>
-                            setRelatedName(event.target.value)
+                            setRelatedName(
+                                event.target.value
+                            )
                         }
                         placeholder="Related character name"
                     />
 
-                    {/* Relationship type */}
                     <input
                         value={relationshipType}
                         onChange={event =>
-                            setRelationshipType(event.target.value)
+                            setRelationshipType(
+                                event.target.value
+                            )
                         }
                         placeholder="Relationship type, e.g. sister, enemy, love interest"
                     />
 
-                    {/* Relationship notes */}
                     <textarea
                         value={relationshipNotes}
                         onChange={event =>
-                            setRelationshipNotes(event.target.value)
+                            setRelationshipNotes(
+                                event.target.value
+                            )
                         }
                         placeholder="Relationship notes"
                     />
@@ -740,14 +1130,7 @@ function CharacterProfile({
                         Add Relationship
                     </button>
 
-                    {/* Existing relationship cards */}
                     <div className="relationshipList">
-                        {(character.relationships || []).length === 0 && (
-                            <p className="emptyText">
-                                No relationships recorded.
-                            </p>
-                        )}
-
                         {(character.relationships || []).map(
                             relationship => (
                                 <div
@@ -785,7 +1168,9 @@ function CharacterProfile({
 
                                     {relationship.notes && (
                                         <p>
-                                            {relationship.notes}
+                                            {
+                                                relationship.notes
+                                            }
                                         </p>
                                     )}
                                 </div>
@@ -793,7 +1178,6 @@ function CharacterProfile({
                         )}
                     </div>
 
-                    {/* Interactive relationship graph */}
                     <div className="relationshipGraphSection">
                         <div className="graphSectionHeader">
                             <div>
@@ -802,15 +1186,18 @@ function CharacterProfile({
                                 </h3>
 
                                 <p>
-                                    Drag characters, zoom, and
-                                    explore their connections.
+                                    Drag the characters, zoom,
+                                    and explore their
+                                    connections.
                                 </p>
                             </div>
 
                             <span className="relationshipCount">
                                 {
-                                    (character.relationships || [])
-                                        .length
+                                    (
+                                        character.relationships ||
+                                        []
+                                    ).length
                                 }
                             </span>
                         </div>
@@ -841,7 +1228,9 @@ function CharacterProfile({
                         <input
                             value={timelineAge}
                             onChange={event =>
-                                setTimelineAge(event.target.value)
+                                setTimelineAge(
+                                    event.target.value
+                                )
                             }
                             placeholder="Character age"
                         />
@@ -850,7 +1239,9 @@ function CharacterProfile({
                     <input
                         value={timelineEvent}
                         onChange={event =>
-                            setTimelineEvent(event.target.value)
+                            setTimelineEvent(
+                                event.target.value
+                            )
                         }
                         placeholder="Major story event"
                     />
@@ -858,7 +1249,9 @@ function CharacterProfile({
                     <textarea
                         value={timelineNotes}
                         onChange={event =>
-                            setTimelineNotes(event.target.value)
+                            setTimelineNotes(
+                                event.target.value
+                            )
                         }
                         placeholder="Describe what happened during this event"
                     />
@@ -871,19 +1264,14 @@ function CharacterProfile({
                         Add Timeline Event
                     </button>
 
-                    {(character.timeline || []).length === 0 && (
-                        <p className="emptyText">
-                            No timeline events recorded.
-                        </p>
-                    )}
-
                     {(character.timeline || []).map(event => (
                         <div
                             key={event.id}
                             className="timelineCard"
                         >
                             <h4>
-                                {event.event || 'Untitled Event'}
+                                {event.event ||
+                                    'Untitled Event'}
                             </h4>
 
                             <p>
@@ -898,14 +1286,15 @@ function CharacterProfile({
 
                             <p>
                                 <strong>Notes:</strong>{' '}
-                                {event.notes || 'No notes'}
+                                {event.notes}
                             </p>
 
                             <button
                                 type="button"
-                                className="deleteButton"
                                 onClick={() =>
-                                    onDeleteTimelineEvent(event.id)
+                                    onDeleteTimelineEvent(
+                                        event.id
+                                    )
                                 }
                             >
                                 Delete
@@ -915,29 +1304,290 @@ function CharacterProfile({
                 </div>
             )}
 
-            {/* AI Tools tab */}
-            {activeTab === 'ai' && (
+            {/* Tags tab */}
+            {activeTab === 'tags' && (
                 <div className="sectionCard">
-                    <h3>AI-Assisted Writing Tools</h3>
+                    <h3>Character Tags</h3>
 
-                    <button
-                        type="button"
-                        className="primaryButton"
-                        onClick={generateSummary}
-                    >
-                        Generate Character Summary
-                    </button>
-
-                    {aiOutput && (
-                        <div className="aiBox">
-                            {aiOutput}
-                        </div>
-                    )}
-
-                    <p className="emptyText">
-                        A future phase will connect this tab to a
-                        secure backend and a real AI API.
+                    <p className="sectionDescription">
+                        Add custom labels to organize this
+                        character by story role, personality,
+                        theme, or importance.
                     </p>
+
+                    <div className="tagInputRow">
+                        <input
+                            value={newTag}
+                            onChange={event =>
+                                setNewTag(event.target.value)
+                            }
+                            onKeyDown={handleTagKeyDown}
+                            placeholder="Enter a new tag"
+                        />
+
+                        <button
+                            type="button"
+                            className="primaryButton"
+                            onClick={handleAddTag}
+                        >
+                            Add Tag
+                        </button>
+                    </div>
+
+                    {(character.tags || []).length > 0 ? (
+                        <div className="editableTagList">
+                            {(character.tags || []).map(tag => (
+                                <span
+                                    key={tag}
+                                    className="editableTagBadge"
+                                >
+                                    {tag}
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleDeleteTag(tag)
+                                        }
+                                        aria-label={`Remove ${tag} tag`}
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="emptyText">
+                            No tags have been added yet.
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {/* AI Writing Assistant tab */}
+            {activeTab === 'ai' && (
+                <div className="sectionCard aiAssistantCard">
+                    <div className="aiAssistantHeader">
+                        <div>
+                            <span className="aiEyebrow">
+                                Phase 17
+                            </span>
+
+                            <h3>AI Writing Assistant</h3>
+
+                            <p>
+                                Use the selected character's
+                                saved information to generate
+                                writing ideas and development
+                                prompts.
+                            </p>
+                        </div>
+
+                        <span className="localGeneratorBadge">
+                            Local Generator
+                        </span>
+                    </div>
+
+                    <div className="aiWorkspace">
+                        {/* Left side: writing-tool controls */}
+                        <div className="aiControlPanel">
+                            <label htmlFor="aiTool">
+                                Choose Writing Tool
+                            </label>
+
+                            <select
+                                id="aiTool"
+                                value={selectedAiTool}
+                                onChange={event => {
+                                    setSelectedAiTool(
+                                        event.target.value
+                                    )
+
+                                    setAiOutput('')
+                                    setAiMessage('')
+                                }}
+                            >
+                                <option value="summary">
+                                    Character Summary
+                                </option>
+
+                                <option value="personality">
+                                    Personality Analysis
+                                </option>
+
+                                <option value="improvements">
+                                    Character Improvement
+                                </option>
+
+                                <option value="dialogue">
+                                    Dialogue Generator
+                                </option>
+
+                                <option value="storyArc">
+                                    Story Arc Ideas
+                                </option>
+
+                                <option value="relationships">
+                                    Relationship Analysis
+                                </option>
+
+                                <option value="backstory">
+                                    Backstory Generator
+                                </option>
+
+                                <option value="conflict">
+                                    Conflict Generator
+                                </option>
+
+                                <option value="timeline">
+                                    Timeline Review
+                                </option>
+                            </select>
+
+                            <label htmlFor="aiInstructions">
+                                Optional Instructions
+                            </label>
+
+                            <textarea
+                                id="aiInstructions"
+                                value={aiInstructions}
+                                onChange={event =>
+                                    setAiInstructions(
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="Example: Make the ideas darker, focus on romance, or use a fantasy setting."
+                            />
+
+                            <div className="aiActionButtons">
+                                <button
+                                    type="button"
+                                    className="primaryButton"
+                                    onClick={
+                                        handleGenerateAiOutput
+                                    }
+                                    disabled={isGenerating}
+                                >
+                                    {isGenerating
+                                        ? 'Generating...'
+                                        : 'Generate'}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={clearAiWorkspace}
+                                    disabled={
+                                        isGenerating &&
+                                        !aiOutput
+                                    }
+                                >
+                                    Clear
+                                </button>
+                            </div>
+
+                            <div className="aiCharacterContext">
+                                <h4>
+                                    Character Information Used
+                                </h4>
+
+                                <ul>
+                                    <li>
+                                        Profile details
+                                    </li>
+
+                                    <li>
+                                        Goals and conflicts
+                                    </li>
+
+                                    <li>
+                                        Custom tags
+                                    </li>
+
+                                    <li>
+                                        Relationships
+                                    </li>
+
+                                    <li>
+                                        Timeline events
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Right side: generated writing output */}
+                        <div className="aiOutputPanel">
+                            <div className="aiOutputHeader">
+                                <div>
+                                    <span className="aiOutputLabel">
+                                        Generated Output
+                                    </span>
+
+                                    <h4>
+                                        {character.name ||
+                                            'Selected Character'}
+                                    </h4>
+                                </div>
+
+                                {aiOutput && (
+                                    <button
+                                        type="button"
+                                        className="copyOutputButton"
+                                        onClick={copyAiOutput}
+                                    >
+                                        Copy
+                                    </button>
+                                )}
+                            </div>
+
+                            {isGenerating ? (
+                                <div className="aiLoadingState">
+                                    <div className="aiLoadingDots">
+                                        <span />
+                                        <span />
+                                        <span />
+                                    </div>
+
+                                    <p>
+                                        Reviewing character
+                                        information...
+                                    </p>
+                                </div>
+                            ) : aiOutput ? (
+                                <pre className="aiGeneratedText">
+                                    {aiOutput}
+                                </pre>
+                            ) : (
+                                <div className="aiEmptyState">
+                                    <span className="aiEmptyIcon">
+                                        ✦
+                                    </span>
+
+                                    <h4>
+                                        No output generated yet
+                                    </h4>
+
+                                    <p>
+                                        Select a writing tool and
+                                        click Generate to create
+                                        ideas for this character.
+                                    </p>
+                                </div>
+                            )}
+
+                            {aiMessage && (
+                                <p className="aiStatusMessage">
+                                    {aiMessage}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="aiNotice">
+                        <strong>Current version:</strong>{' '}
+                        These outputs are created locally from
+                        saved character data. A real AI API will
+                        be connected through the backend in
+                        Phase 19.
+                    </div>
                 </div>
             )}
         </section>

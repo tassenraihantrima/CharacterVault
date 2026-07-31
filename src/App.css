@@ -1,3 +1,7 @@
+/* =========================================================
+   GLOBAL APPLICATION STYLES
+   ========================================================= */
+
 /* Makes sizing easier everywhere */
 * {
   box-sizing: border-box;
@@ -13,12 +17,20 @@ body {
 
 /* Whole app wrapper */
 .app {
+  width: 100%;
   min-height: 100vh;
+  background: #11121a;
 }
+
+/* =========================================================
+   APPLICATION HEADER
+   ========================================================= */
 
 /* Top title area */
 .topbar {
+  width: 100%;
   padding: 24px 32px;
+  text-align: center;
   border-bottom: 1px solid #2a2c38;
   background: #171923;
 }
@@ -35,30 +47,52 @@ body {
   color: #aaa;
 }
 
-/* Three-column layout */
+/* =========================================================
+   MAIN APPLICATION LAYOUT
+   ========================================================= */
+
+/*
+  Main three-column workspace.
+
+  The columns grow proportionally so the app fills large screens
+  without leaving the first two panels extremely narrow.
+*/
 .layout {
+  width: 100%;
   display: grid;
-  grid-template-columns: 260px 360px 1fr;
-  gap: 16px;
-  padding: 16px;
+  grid-template-columns:
+    minmax(260px, 0.75fr) minmax(420px, 1.2fr) minmax(560px, 2fr);
+  align-items: start;
+  gap: 18px;
+  padding: 18px;
 }
 
-/* Each column card */
+/* Each main column card */
 .panel {
-  background: #1b1d29;
+  width: 100%;
+  min-width: 0;
+  min-height: 75vh;
+  padding: 16px;
   border: 1px solid #2d3040;
   border-radius: 14px;
-  padding: 16px;
-  min-height: 75vh;
+  background: #1b1d29;
 }
 
-/* Allows long profile content, including the relationship graph, to scroll */
+/*
+  Allow the profile panel to grow naturally.
+
+  It no longer receives a fixed height or internal scrollbar.
+*/
 .profilePanel {
+  width: 100%;
   min-width: 0;
-  max-height: 82vh;
-  overflow-y: auto;
-  scrollbar-gutter: stable;
+  max-height: none;
+  overflow: visible;
 }
+
+/* =========================================================
+   GENERAL ELEMENTS
+   ========================================================= */
 
 /* Headings */
 h2,
@@ -72,8 +106,8 @@ textarea {
   width: 100%;
   padding: 10px;
   margin: 6px 0;
-  border-radius: 8px;
   border: 1px solid #44485a;
+  border-radius: 8px;
   background: #11131d;
   color: white;
 }
@@ -90,6 +124,17 @@ label {
   margin-top: 10px;
   color: #c9c9c9;
   font-size: 14px;
+}
+
+/* Dropdown menus */
+select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border: 1px solid #44485a;
+  border-radius: 8px;
+  background: #11131d;
+  color: white;
 }
 
 /* Normal buttons */
@@ -119,15 +164,35 @@ button:hover {
   background: #7583ff;
 }
 
-/* Input + button row */
+/* Secondary button */
+.secondaryButton {
+  background: #343849;
+}
+
+/* Secondary button hover */
+.secondaryButton:hover {
+  background: #4a5066;
+}
+
+/* Empty placeholder text */
+.emptyText {
+  color: #999;
+}
+
+/* =========================================================
+   NOVEL LIST
+   ========================================================= */
+
+/* Input and button row */
 .inputRow {
   display: flex;
   gap: 8px;
 }
 
-/* Keeps input bigger than button */
+/* Keeps input larger than the button */
 .inputRow input {
   flex: 1;
+  min-width: 0;
 }
 
 /* List container */
@@ -138,15 +203,15 @@ button:hover {
   margin-top: 12px;
 }
 
-/* Novel/character row */
+/* Novel or character list row */
 .listItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  background: #242737;
-  border-radius: 10px;
   padding: 8px;
+  border-radius: 10px;
+  background: #242737;
 }
 
 /* Highlight selected item */
@@ -157,12 +222,19 @@ button:hover {
 /* Name button takes available space */
 .nameButton {
   flex: 1;
+  min-width: 0;
   text-align: left;
   background: transparent;
 }
 
-/* Delete X button */
+/* Prevent transparent button hover background */
+.nameButton:hover {
+  background: transparent;
+}
+
+/* Delete button */
 .deleteButton {
+  flex-shrink: 0;
   background: #5a2b35;
 }
 
@@ -171,157 +243,33 @@ button:hover {
   background: #8a3548;
 }
 
+/* =========================================================
+   FORMS
+   ========================================================= */
+
 /* Two-column form for smaller inputs */
 .formGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-/* Empty placeholder text */
-.emptyText {
-  color: #999;
+/* Separates the character form from search controls */
+.addCharacterSection {
+  padding-top: 16px;
+  border-top: 1px solid #303449;
 }
 
-/* Where-used cards */
-.whereCard {
-  background: #242737;
-  border-radius: 10px;
-  padding: 12px;
-  margin-top: 10px;
+/* Small explanation underneath inputs */
+.inputHelpText {
+  margin: 2px 0 10px;
+  color: #9296aa;
+  font-size: 12px;
 }
 
-/* AI result box */
-.aiBox {
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 10px;
-  background: #222845;
-  color: #dce1ff;
-}
-
-/* Mobile layout */
-@media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Tabs inside character profile */
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-/* Individual tab buttons */
-.tabs button {
-  background: #25293b;
-  font-size: 14px;
-}
-
-/* Tab hover effect */
-.tabs button:hover {
-  background: #5f6fff;
-}
-
-/* Profile header styling */
-.profileHeader {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #2d3040;
-  margin-bottom: 16px;
-}
-
-/* Circle avatar for selected character */
-.largeAvatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #5f6fff;
-  color: white;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-/* Card sections inside profile */
-.sectionCard {
-  background: #242737;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 14px;
-}
-
-/* Relationship cards */
-.relationshipCard {
-  background: #181b29;
-  border-radius: 12px;
-  padding: 14px;
-  margin-top: 12px;
-  border-left: 4px solid #5f6fff;
-}
-
-.relationshipCard h4 {
-  margin: 0 0 8px;
-}
-
-.relationshipCard p {
-  margin: 6px 0;
-}
-
-/* Timeline cards */
-.timelineCard {
-  background: #181b29;
-  border-radius: 12px;
-  padding: 14px;
-  margin-top: 12px;
-  border-left: 4px solid #8b5cf6;
-}
-
-.timelineCard h4 {
-  margin: 0 0 8px;
-}
-
-.timelineCard p {
-  margin: 6px 0;
-}
-
-/* Portrait upload controls */
-.portraitControls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-/* Custom upload button */
-.uploadButton {
-  display: inline-block;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 9px 12px;
-  background: #343849;
-  color: white;
-  font-size: 14px;
-}
-
-/* Hide default file input */
-.uploadButton input {
-  display: none;
-}
-
-/* Uploaded portrait image */
-.portraitImage {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #5f6fff;
-}
+/* =========================================================
+   CHARACTER PANEL
+   ========================================================= */
 
 /* Header for the character panel */
 .characterPanelHeader {
@@ -331,11 +279,17 @@ button:hover {
   gap: 12px;
 }
 
-/* Shows the total number of characters in the selected novel */
+/* Panel subtitle */
+.panelSubtitle {
+  color: #c7cada;
+}
+
+/* Total character count */
 .characterCount {
   min-width: 36px;
   height: 36px;
   display: grid;
+  flex-shrink: 0;
   place-items: center;
   border-radius: 50%;
   background: #5f6fff;
@@ -348,23 +302,20 @@ button:hover {
   margin-top: 16px;
 }
 
-/* Two-column filter and sorting controls */
+/* Older two-column filter layout */
 .filterGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-top: 8px;
 }
 
-/* Styling for dropdown menus */
-select {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  border: 1px solid #44485a;
-  border-radius: 8px;
-  background: #11131d;
-  color: white;
+/* Phase 16 role, tag, and sorting controls */
+.advancedFilterGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
 }
 
 /* Search results count and reset button */
@@ -378,22 +329,50 @@ select {
   font-size: 14px;
 }
 
-/* Secondary button used for reset and clear actions */
-.secondaryButton {
-  background: #343849;
+/* Group search count and active filter label */
+.searchSummary>div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.secondaryButton:hover {
-  background: #4a5066;
+/* Active filter indicator */
+.activeFilterText {
+  color: #9fa8ff;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-/* Separates the character form from search controls */
-.addCharacterSection {
-  padding-top: 16px;
-  border-top: 1px solid #303449;
+/* Favorite-only filter row */
+.favoriteFilter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  background: #242737;
+  cursor: pointer;
 }
 
-/* Character result cards */
+/* Prevent checkbox from using full input width */
+.favoriteFilter input {
+  width: auto;
+  margin: 0;
+  accent-color: #f4c542;
+}
+
+/* Text beside favorite checkbox */
+.favoriteFilter span {
+  color: #d4d6e2;
+  font-size: 14px;
+}
+
+/* =========================================================
+   CHARACTER CARDS
+   ========================================================= */
+
+/* Character result cards container */
 .characterCards {
   display: flex;
   flex-direction: column;
@@ -406,19 +385,48 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   padding: 10px;
-  background: #242737;
   border-radius: 12px;
+  background: #242737;
 }
 
-/* Highlights the currently selected character */
+/* Highlights currently selected character */
 .characterCard.selectedCard {
   outline: 2px solid #5f6fff;
 }
 
-/* Main clickable section of each card */
+/* Adds gold accent to favorite cards */
+.characterCard:has(.favoriteActive) {
+  border-left: 3px solid #f4c542;
+}
+
+/* Favorite star button */
+.favoriteButton {
+  flex-shrink: 0;
+  padding: 4px;
+  background: transparent;
+  color: #8d91a5;
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* Favorite button hover */
+.favoriteButton:hover {
+  background: transparent;
+  color: #f4c542;
+  transform: scale(1.1);
+}
+
+/* Favorite character star */
+.favoriteButton.favoriteActive {
+  color: #f4c542;
+}
+
+/* Main clickable character-card section */
 .characterMain {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -427,14 +435,15 @@ select {
   background: transparent;
 }
 
-/* Stops the card background from changing on hover */
+/* Stops card background changing on hover */
 .characterMain:hover {
   background: transparent;
 }
 
-/* Character information inside the card */
+/* Character information inside card */
 .characterCardDetails {
   min-width: 0;
+  flex: 1;
 }
 
 /* Character name */
@@ -455,470 +464,43 @@ select {
   color: #9296aa;
 }
 
-/* Portrait displayed in the character list */
+/* Character list portrait */
 .characterListPortrait {
   width: 44px;
   height: 44px;
   flex-shrink: 0;
+  border: 2px solid #5f6fff;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #5f6fff;
 }
 
-/* Message displayed when no results match */
-.noResults {
-  padding: 24px 14px;
-  text-align: center;
-  background: #242737;
-  border-radius: 12px;
-  color: #a6a9ba;
-}
-
-/* Makes filters stack on narrow screens */
-@media (max-width: 500px) {
-  .filterGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .searchSummary {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-
-/* Favorite-only filter row */
-.favoriteFilter {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px 12px;
-  margin-top: 8px;
-  border-radius: 10px;
-  background: #242737;
-  cursor: pointer;
-}
-
-/* Prevent the checkbox from using full input width */
-.favoriteFilter input {
-  width: auto;
-  margin: 0;
-  accent-color: #f4c542;
-}
-
-/* Text next to the favorite checkbox */
-.favoriteFilter span {
-  color: #d4d6e2;
-  font-size: 14px;
-}
-
-/* Star button displayed on every character card */
-.favoriteButton {
-  flex-shrink: 0;
-  padding: 4px;
-  background: transparent;
-  color: #8d91a5;
-  font-size: 24px;
-  line-height: 1;
-}
-
-/* Prevent normal button hover background */
-.favoriteButton:hover {
-  background: transparent;
-  color: #f4c542;
-  transform: scale(1.1);
-}
-
-/* Gold appearance for favorite characters */
-.favoriteButton.favoriteActive {
-  color: #f4c542;
-}
-
-/* Adds a small gold accent to favorite cards */
-.characterCard:has(.favoriteActive) {
-  border-left: 3px solid #f4c542;
-}
-
-/* Container for all relationship cards */
-.relationshipList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-/* Header inside each relationship card */
-.relationshipCardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-/* Relationship character name */
-.relationshipCardHeader h4 {
-  margin: 0 0 5px;
-}
-
-/* Small badge displaying the relationship type */
-.relationshipType {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #303652;
-  color: #ccd1ff;
-  font-size: 12px;
-}
-
-/* Space between saved cards and the graph */
-.relationshipGraphSection {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #3a3e50;
-}
-
-/* Graph heading and relationship count */
-.graphSectionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 12px;
-}
-
-/* Remove extra heading spacing */
-.graphSectionHeader h3 {
-  margin-bottom: 5px;
-}
-
-/* Description shown above the graph */
-.graphSectionHeader p {
-  color: #a5a9ba;
-  font-size: 14px;
-}
-
-/* Number of relationships displayed in the graph */
-.relationshipCount {
-  min-width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #5f6fff;
-  color: white;
-  font-weight: bold;
-}
-
-/*
-  React Flow needs a parent container with an explicit height.
-  Without this height, the graph may appear blank.
-*/
-.relationshipGraph {
-  width: 100%;
-  height: 520px;
-  overflow: hidden;
-  border: 1px solid #3b4057;
-  border-radius: 14px;
-  background: #12141e;
-}
-
-/* Main selected-character node */
-.relationshipGraph .relationshipMainNode {
-  width: 170px;
-  padding: 15px;
-  border: 2px solid #7a86ff;
-  border-radius: 14px;
-  background: #5f6fff;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  white-space: pre-line;
-  box-shadow: 0 10px 24px rgba(95, 111, 255, 0.3);
-}
-
-/* Nodes representing related characters */
-.relationshipGraph .relationshipPersonNode {
-  width: 150px;
-  padding: 12px;
-  border: 1px solid #555d7f;
-  border-radius: 12px;
-  background: #272b3d;
-  color: white;
-  text-align: center;
-}
-
-/* Relationship labels shown on graph edges */
-.relationshipGraph .react-flow__edge-text {
-  fill: #f0f1fa;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Background behind each edge label */
-.relationshipGraph .react-flow__edge-textbg {
-  fill: #25293b;
-  fill-opacity: 1;
-}
-
-/* Relationship connecting lines */
-.relationshipGraph .react-flow__edge-path {
-  stroke: #929cff;
-  stroke-width: 2;
-}
-
-/* Style the React Flow control buttons for the dark interface */
-.relationshipGraph .react-flow__controls-button {
-  border-color: #3d4259;
-  background: #25293b;
-  fill: white;
-}
-
-/* Control-button hover */
-.relationshipGraph .react-flow__controls-button:hover {
-  background: #3a4057;
-}
-
-/* Dark minimap background */
-.relationshipGraph .react-flow__minimap {
-  background: #1c1f2c;
-  border: 1px solid #3b4057;
-}
-
-/* Empty state displayed before relationships exist */
-.graphEmptyState {
-  min-height: 260px;
-  display: grid;
-  place-content: center;
-  padding: 24px;
-  text-align: center;
-  border: 1px dashed #444a63;
-  border-radius: 14px;
-  background: #181b27;
-}
-
-/* Empty-state heading */
-.graphEmptyState h4 {
-  margin: 0 0 8px;
-}
-
-/* Empty-state explanation */
-.graphEmptyState p {
-  color: #999daf;
-}
-
-/* Make graph slightly shorter on small devices */
-@media (max-width: 600px) {
-  .relationshipGraph {
-    height: 400px;
-  }
-
-  .graphSectionHeader {
-    flex-direction: column;
-  }
-}
-
-/* Make the React Flow minimap smaller and cleaner */
-.relationshipGraph .react-flow__minimap {
-  width: 140px;
-  height: 100px;
-  right: 10px;
-  bottom: 10px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #1c1f2c;
-  border: 1px solid #3b4057;
-}
-
-/* Improve node visibility inside the minimap */
-.relationshipGraph .react-flow__minimap-mask {
-  fill: rgba(95, 111, 255, 0.12);
-}
-
-/* Hide React Flow attribution label */
-.relationshipGraph .react-flow__attribution {
-  display: none;
-}
-
-/* Main dashboard container. */
-.statisticsSection {
-  margin: 16px 16px 0;
-  padding: 18px;
-  border: 1px solid #2d3040;
-  border-radius: 14px;
-  background: #1b1d29;
-}
-
-/* Dashboard title and badge row */
-.statisticsHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-/* Remove extra space above the heading */
-.statisticsHeader h2 {
-  margin: 0 0 5px;
-}
-
-/* Dashboard subtitle */
-.statisticsHeader p {
-  margin: 0;
-  color: #a9adbd;
-}
-
-/* Selected novel title inside the subtitle */
-.statisticsHeader strong {
-  color: #d9dcff;
-}
-
-/* Small badge showing the number of statistic cards */
-.statisticsBadge {
-  flex-shrink: 0;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: #303652;
-  color: #ccd1ff;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/*
-  Six-column dashboard layout on large screens.
-*/
-.statisticsGrid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
-}
-
-/* Individual statistic card */
-.statCard {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 14px;
-  border: 1px solid #35394d;
-  border-radius: 12px;
-  background: #242737;
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease;
-}
-
-/* Small hover movement for dashboard cards */
-.statCard:hover {
-  transform: translateY(-2px);
-  border-color: #5f6fff;
-}
-
-/* Icon displayed on each statistic card */
-.statIcon {
+/* Default small avatar */
+.avatar {
   width: 38px;
   height: 38px;
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 50%;
   background: #303652;
-  color: #f4c542;
-  font-size: 18px;
+  color: white;
   font-weight: bold;
 }
 
-/* Statistic name */
-.statLabel {
-  margin: 0;
-  color: #aeb2c4;
-  font-size: 12px;
-  line-height: 1.3;
+/* Message when no results match */
+.noResults {
+  padding: 24px 14px;
+  text-align: center;
+  border-radius: 12px;
+  background: #242737;
+  color: #a6a9ba;
 }
 
-/* Large statistic number */
-.statValue {
-  margin: 3px 0 0;
-  color: #f5f6ff;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1;
-}
+/* =========================================================
+   CHARACTER TAGS
+   ========================================================= */
 
-/*
-  Use three columns when the browser becomes narrower.
-*/
-@media (max-width: 1200px) {
-  .statisticsGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/*
-  Use two columns on tablets and smaller screens.
-*/
-@media (max-width: 700px) {
-  .statisticsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .statisticsHeader {
-    flex-direction: column;
-  }
-}
-
-/*
-  Use one column on very small mobile screens.
-*/
-@media (max-width: 420px) {
-  .statisticsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .statisticsSection {
-    margin-inline: 10px;
-  }
-}
-
-/*
-  Three-column layout used for role, tag, and sorting filters.
-*/
-.advancedFilterGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 8px;
-}
-
-/*
-  Small explanation displayed underneath inputs.
-*/
-.inputHelpText {
-  margin: 2px 0 10px;
-  color: #9296aa;
-  font-size: 12px;
-}
-
-/*
-  Groups the search result number and active-filter message.
-*/
-.searchSummary>div {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-/*
-  Indicates that the character list is currently filtered.
-*/
-.activeFilterText {
-  color: #9fa8ff;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/*
-  Container holding tags inside a character card.
-*/
+/* Tag badges inside a character card */
 .characterTagList {
   display: flex;
   flex-wrap: wrap;
@@ -926,11 +508,9 @@ select {
   margin-top: 8px;
 }
 
-/*
-  Reusable tag badge displayed in character cards
-  and the character profile header.
-*/
-.characterTag {
+/* Reusable tag badge */
+.characterTag,
+.tagBadge {
   display: inline-flex;
   align-items: center;
   max-width: 150px;
@@ -946,35 +526,30 @@ select {
   white-space: nowrap;
 }
 
-/*
-  Allows the profile header text to use the remaining width.
-*/
-.profileHeaderDetails {
+/* Profile header information */
+.profileHeaderDetails,
+.profileHeaderContent {
   min-width: 0;
   flex: 1;
 }
 
-/*
-  Removes unwanted spacing from the profile role text.
-*/
-.profileHeaderDetails p {
+/* Role text in profile header */
+.profileHeaderDetails p,
+.profileHeaderContent p {
   margin: 5px 0;
   color: #b2b5c5;
 }
 
-/*
-  Displays a small tag preview underneath the character role.
-*/
-.profileHeaderTags {
+/* Tags inside profile header */
+.profileHeaderTags,
+.profileTagPreview {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
   margin-top: 8px;
 }
 
-/*
-  Badge displayed when a character has more than four tags.
-*/
+/* Badge when additional tags exist */
 .moreTagsBadge {
   display: inline-flex;
   align-items: center;
@@ -985,17 +560,7 @@ select {
   font-size: 11px;
 }
 
-/*
-  Makes the active character-profile tab visually clear.
-*/
-.tabs button.activeTab {
-  background: #5f6fff;
-  color: white;
-}
-
-/*
-  Header inside the Tags tab.
-*/
+/* Tag section header */
 .tagSectionHeader {
   display: flex;
   align-items: flex-start;
@@ -1004,17 +569,14 @@ select {
   margin-bottom: 18px;
 }
 
-/*
-  Removes extra spacing from the Tags heading.
-*/
+/* Tag section heading */
 .tagSectionHeader h3 {
   margin-bottom: 6px;
 }
 
-/*
-  Description underneath the Tags heading.
-*/
-.tagSectionHeader p {
+/* Tag section description */
+.tagSectionHeader p,
+.sectionDescription {
   max-width: 570px;
   margin: 0;
   color: #a6aabd;
@@ -1022,9 +584,7 @@ select {
   line-height: 1.5;
 }
 
-/*
-  Circular badge showing the selected character's tag count.
-*/
+/* Tag count badge */
 .tagCountBadge {
   min-width: 36px;
   height: 36px;
@@ -1037,41 +597,37 @@ select {
   font-weight: 700;
 }
 
-/*
-  Places the tag input and Add Tag button beside one another.
-*/
+/* Tag input and button row */
 .tagInputRow {
   display: flex;
   align-items: stretch;
-  gap: 8px;
+  gap: 10px;
 }
 
-/*
-  Allows the tag input to take most of the row width.
-*/
+/* Tag input grows */
 .tagInputRow input {
   flex: 1;
+  min-width: 0;
 }
 
-/*
-  Tag-add button.
-*/
+/* Tag button does not shrink */
+.tagInputRow button {
+  flex-shrink: 0;
+}
+
+/* Dedicated tag-add button */
 .tagAddButton {
   flex-shrink: 0;
   margin: 6px 0;
   background: #5f6fff;
 }
 
-/*
-  Tag-add button hover state.
-*/
+/* Tag-add hover */
 .tagAddButton:hover {
   background: #7583ff;
 }
 
-/*
-  Validation feedback displayed for empty or duplicate tags.
-*/
+/* Tag validation message */
 .tagMessage {
   margin: 8px 0;
   padding: 9px 11px;
@@ -1082,9 +638,7 @@ select {
   font-size: 13px;
 }
 
-/*
-  Empty state displayed before a character has tags.
-*/
+/* Tag empty state */
 .tagEmptyState {
   margin-top: 18px;
   padding: 24px;
@@ -1094,35 +648,29 @@ select {
   background: #181b27;
 }
 
-/*
-  Empty-state heading.
-*/
+/* Tag empty-state heading */
 .tagEmptyState h4 {
   margin: 0 0 7px;
 }
 
-/*
-  Empty-state description.
-*/
+/* Tag empty-state description */
 .tagEmptyState p {
   margin: 0;
   color: #999daf;
 }
 
-/*
-  Container for all editable tags in the Tags tab.
-*/
-.profileTagList {
+/* Editable tags container */
+.profileTagList,
+.editableTagList {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 18px;
 }
 
-/*
-  Larger editable tag badge.
-*/
-.editableTag {
+/* Editable tag */
+.editableTag,
+.editableTagBadge {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -1134,10 +682,9 @@ select {
   font-size: 14px;
 }
 
-/*
-  Small remove button inside an editable tag.
-*/
-.editableTag button {
+/* Remove-tag button */
+.editableTag button,
+.editableTagBadge button {
   width: 24px;
   height: 24px;
   display: grid;
@@ -1149,44 +696,910 @@ select {
   line-height: 1;
 }
 
-/*
-  Remove-tag button hover state.
-*/
-.editableTag button:hover {
+/* Remove-tag hover */
+.editableTag button:hover,
+.editableTagBadge button:hover {
   background: #8a3548;
 }
 
-/*
-  Prevent long tag names from breaking the card layout.
-*/
-.editableTag span {
-  max-width: 220px;
+/* Prevent long tags from breaking layout */
+.editableTag span,
+.editableTagBadge {
   overflow-wrap: anywhere;
 }
 
+/* =========================================================
+   CHARACTER PROFILE
+   ========================================================= */
+
+/* Tabs inside character profile */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Individual tab buttons */
+.tabs button {
+  background: #25293b;
+  font-size: 14px;
+}
+
+/* Tab hover */
+.tabs button:hover {
+  background: #5f6fff;
+}
+
+/* Active tab */
+.tabs button.activeTab {
+  background: #5f6fff;
+  color: white;
+}
+
+/* Profile header */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #2d3040;
+}
+
+/* Large default avatar */
+.largeAvatar {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #5f6fff;
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Uploaded portrait */
+.portraitImage {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border: 2px solid #5f6fff;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Portrait upload controls */
+.portraitControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* Custom upload button */
+.uploadButton {
+  display: inline-block;
+  cursor: pointer;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #343849;
+  color: white;
+  font-size: 14px;
+}
+
+/* Hide file input */
+.uploadButton input {
+  display: none;
+}
+
+/* Cards inside profile */
+.sectionCard {
+  min-width: 0;
+  padding: 14px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  background: #242737;
+}
+
+/* =========================================================
+   WHERE USED
+   ========================================================= */
+
+/* Where-used cards */
+.whereCard {
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: #181b29;
+}
+
+/* =========================================================
+   RELATIONSHIPS
+   ========================================================= */
+
+/* Relationship list */
+.relationshipList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Relationship card */
+.relationshipCard {
+  padding: 14px;
+  margin-top: 12px;
+  border-left: 4px solid #5f6fff;
+  border-radius: 12px;
+  background: #181b29;
+}
+
+/* Relationship heading */
+.relationshipCard h4 {
+  margin: 0 0 8px;
+}
+
+/* Relationship text */
+.relationshipCard p {
+  margin: 6px 0;
+}
+
+/* Relationship card header */
+.relationshipCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Relationship card name */
+.relationshipCardHeader h4 {
+  margin: 0 0 5px;
+}
+
+/* Relationship type badge */
+.relationshipType {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #303652;
+  color: #ccd1ff;
+  font-size: 12px;
+}
+
+/* Relationship graph section */
+.relationshipGraphSection {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #3a3e50;
+}
+
+/* Graph header */
+.graphSectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+/* Graph title */
+.graphSectionHeader h3 {
+  margin-bottom: 5px;
+}
+
+/* Graph description */
+.graphSectionHeader p {
+  color: #a5a9ba;
+  font-size: 14px;
+}
+
+/* Relationship count */
+.relationshipCount {
+  min-width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #5f6fff;
+  color: white;
+  font-weight: bold;
+}
+
+/* React Flow graph container */
+.relationshipGraph {
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  border: 1px solid #3b4057;
+  border-radius: 14px;
+  background: #12141e;
+}
+
+/* Main graph node */
+.relationshipGraph .relationshipMainNode {
+  width: 170px;
+  padding: 15px;
+  border: 2px solid #7a86ff;
+  border-radius: 14px;
+  background: #5f6fff;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  white-space: pre-line;
+  box-shadow: 0 10px 24px rgba(95, 111, 255, 0.3);
+}
+
+/* Related-character graph nodes */
+.relationshipGraph .relationshipPersonNode {
+  width: 150px;
+  padding: 12px;
+  border: 1px solid #555d7f;
+  border-radius: 12px;
+  background: #272b3d;
+  color: white;
+  text-align: center;
+}
+
+/* Graph edge labels */
+.relationshipGraph .react-flow__edge-text {
+  fill: #f0f1fa;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Edge label backgrounds */
+.relationshipGraph .react-flow__edge-textbg {
+  fill: #25293b;
+  fill-opacity: 1;
+}
+
+/* Graph connecting lines */
+.relationshipGraph .react-flow__edge-path {
+  stroke: #929cff;
+  stroke-width: 2;
+}
+
+/* Graph control buttons */
+.relationshipGraph .react-flow__controls-button {
+  border-color: #3d4259;
+  background: #25293b;
+  fill: white;
+}
+
+/* Graph control hover */
+.relationshipGraph .react-flow__controls-button:hover {
+  background: #3a4057;
+}
+
+/* Graph minimap */
+.relationshipGraph .react-flow__minimap {
+  width: 140px;
+  height: 100px;
+  right: 10px;
+  bottom: 10px;
+  overflow: hidden;
+  border: 1px solid #3b4057;
+  border-radius: 8px;
+  background: #1c1f2c;
+}
+
+/* Graph minimap mask */
+.relationshipGraph .react-flow__minimap-mask {
+  fill: rgba(95, 111, 255, 0.12);
+}
+
+/* Hide React Flow attribution */
+.relationshipGraph .react-flow__attribution {
+  display: none;
+}
+
+/* Empty graph state */
+.graphEmptyState {
+  min-height: 260px;
+  display: grid;
+  place-content: center;
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed #444a63;
+  border-radius: 14px;
+  background: #181b27;
+}
+
+/* Empty graph heading */
+.graphEmptyState h4 {
+  margin: 0 0 8px;
+}
+
+/* Empty graph explanation */
+.graphEmptyState p {
+  color: #999daf;
+}
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+/* Timeline card */
+.timelineCard {
+  padding: 14px;
+  margin-top: 12px;
+  border-left: 4px solid #8b5cf6;
+  border-radius: 12px;
+  background: #181b29;
+}
+
+/* Timeline heading */
+.timelineCard h4 {
+  margin: 0 0 8px;
+}
+
+/* Timeline text */
+.timelineCard p {
+  margin: 6px 0;
+}
+
+/* =========================================================
+   NOVEL STATISTICS DASHBOARD
+   ========================================================= */
+
+/* Main statistics container */
+.statisticsSection {
+  margin: 16px 18px 0;
+  padding: 18px;
+  border: 1px solid #2d3040;
+  border-radius: 14px;
+  background: #1b1d29;
+}
+
+/* Dashboard title and badge row */
+.statisticsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Dashboard heading */
+.statisticsHeader h2 {
+  margin: 0 0 5px;
+}
+
+/* Dashboard subtitle */
+.statisticsHeader p {
+  margin: 0;
+  color: #a9adbd;
+}
+
+/* Selected novel title */
+.statisticsHeader strong {
+  color: #d9dcff;
+}
+
+/* Statistics count badge */
+.statisticsBadge {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #303652;
+  color: #ccd1ff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Statistics cards grid */
+.statisticsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Individual statistics card */
+.statCard {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid #35394d;
+  border-radius: 12px;
+  background: #242737;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Statistics card hover */
+.statCard:hover {
+  transform: translateY(-2px);
+  border-color: #5f6fff;
+}
+
+/* Statistic icon */
+.statIcon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #303652;
+  color: #f4c542;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Statistic label */
+.statLabel {
+  margin: 0;
+  color: #aeb2c4;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+/* Statistic value */
+.statValue {
+  margin: 3px 0 0;
+  color: #f5f6ff;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* =========================================================
+   PHASE 17 — AI WRITING ASSISTANT
+   ========================================================= */
+
+/* Main AI card */
+.aiAssistantCard {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* AI assistant heading */
+.aiAssistantHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+/* AI title */
+.aiAssistantHeader h3 {
+  margin: 4px 0 8px;
+}
+
+/* AI description */
+.aiAssistantHeader p {
+  max-width: 650px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Phase label */
+.aiEyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* Local generator badge */
+.localGeneratorBadge {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 /*
-  Stack the three advanced filters into one column
-  on narrower screens.
+  AI workspace uses two columns on wide screens.
+
+  Because the profile column now receives most of the page width,
+  the controls and output can safely appear side by side.
 */
+.aiWorkspace {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1.3fr);
+  gap: 18px;
+}
+
+/* Shared AI panel styling */
+.aiControlPanel,
+.aiOutputPanel {
+  width: 100%;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
+}
+
+/* AI controls panel */
+.aiControlPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* AI control labels */
+.aiControlPanel label {
+  margin-top: 3px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+/* AI form controls */
+.aiControlPanel select,
+.aiControlPanel textarea {
+  width: 100%;
+}
+
+/* AI instruction textarea */
+.aiControlPanel textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+/* Generate and clear buttons */
+.aiActionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+/* AI action buttons */
+.aiActionButtons button {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* Disabled AI buttons */
+.aiActionButtons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+/* Character context section */
+.aiCharacterContext {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.09);
+}
+
+/* Character context heading */
+.aiCharacterContext h4 {
+  margin: 0 0 9px;
+  font-size: 0.86rem;
+}
+
+/* Character context list */
+.aiCharacterContext ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* Character context list items */
+.aiCharacterContext li {
+  margin: 5px 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+/* AI output panel */
+.aiOutputPanel {
+  display: flex;
+  flex-direction: column;
+  min-height: 430px;
+}
+
+/* AI output header */
+.aiOutputHeader {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* AI output character name */
+.aiOutputHeader h4 {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+}
+
+/* AI output label */
+.aiOutputLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+/* Copy output button */
+.copyOutputButton {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+}
+
+/* Generated AI text */
+.aiGeneratedText {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  padding: 20px 2px 5px;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+/* AI empty state */
+.aiEmptyState {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* Empty state heading */
+.aiEmptyState h4 {
+  margin: 12px 0 6px;
+}
+
+/* Empty state description */
+.aiEmptyState p {
+  max-width: 340px;
+  margin: 0;
+  line-height: 1.55;
+  opacity: 0.7;
+}
+
+/* AI empty icon */
+.aiEmptyIcon {
+  font-size: 2.2rem;
+}
+
+/* AI loading state */
+.aiLoadingState {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+/* AI loading text */
+.aiLoadingState p {
+  margin: 0;
+  opacity: 0.72;
+}
+
+/* Animated loading dots */
+.aiLoadingDots {
+  display: flex;
+  gap: 6px;
+}
+
+/* Individual loading dot */
+.aiLoadingDots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: aiDotPulse 1.1s infinite ease-in-out;
+}
+
+/* Second loading dot delay */
+.aiLoadingDots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+/* Third loading dot delay */
+.aiLoadingDots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Loading-dot animation */
+@keyframes aiDotPulse {
+
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  40% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+}
+
+/* AI status message */
+.aiStatusMessage {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* Local generator notice */
+.aiNotice {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px dashed rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+/* Legacy AI result box */
+.aiBox {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #222845;
+  color: #dce1ff;
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUT
+   ========================================================= */
+
+/*
+  On medium desktop and laptop screens, the first two panels
+  remain beside each other while the profile uses the full row.
+*/
+@media (max-width: 1350px) {
+  .layout {
+    grid-template-columns:
+      minmax(250px, 0.8fr) minmax(400px, 1.2fr);
+  }
+
+  .profilePanel {
+    grid-column: 1 / -1;
+  }
+
+  .aiWorkspace {
+    grid-template-columns: minmax(260px, 0.8fr) minmax(360px, 1.3fr);
+  }
+}
+
+/* Statistics use three columns on narrower screens */
 @media (max-width: 1200px) {
+  .statisticsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .advancedFilterGrid {
     grid-template-columns: 1fr;
   }
 }
 
-/*
-  Stack the tag input and button on small mobile screens.
-*/
-@media (max-width: 500px) {
+/* AI interface stacks when its available width becomes limited */
+@media (max-width: 950px) {
+  .aiWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .aiOutputPanel {
+    min-height: 360px;
+  }
+}
+
+/* Stack all application panels on tablets */
+@media (max-width: 850px) {
+  .layout {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .profilePanel {
+    grid-column: auto;
+  }
+
+  .statisticsSection {
+    margin: 12px 12px 0;
+  }
+}
+
+/* Statistics use two columns on smaller tablets */
+@media (max-width: 700px) {
+  .statisticsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statisticsHeader,
+  .aiAssistantHeader,
+  .tagSectionHeader,
+  .graphSectionHeader {
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: 20px 16px;
+  }
+}
+
+/* Mobile form and AI adjustments */
+@media (max-width: 600px) {
+
+  .formGrid,
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .relationshipGraph {
+    height: 400px;
+  }
+
+  .aiControlPanel,
+  .aiOutputPanel {
+    padding: 14px;
+  }
+
+  .aiOutputPanel {
+    min-height: 330px;
+  }
+
+  .aiActionButtons,
   .tagInputRow {
     flex-direction: column;
   }
 
+  .aiActionButtons button,
+  .tagInputRow button,
   .tagAddButton {
     width: 100%;
   }
 
-  .tagSectionHeader {
+  .searchSummary {
+    align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+/* Statistics use one column on very small screens */
+@media (max-width: 420px) {
+  .statisticsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statisticsSection {
+    margin-inline: 10px;
+  }
+
+  .layout {
+    padding: 10px;
   }
 }

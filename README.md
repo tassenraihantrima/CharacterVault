@@ -34,6 +34,17 @@ CharacterVault is a React web application designed to help writers organize nove
 - Organize character information using profile tabs
 - Save novels, characters, portraits, relationships, timelines, tags, and favorite status using LocalStorage
 - Responsive three-panel interface built with reusable React components
+- Use a local AI Writing Assistant interface for character development
+- Generate character summaries
+- Generate personality analyses
+- Generate character improvement suggestions
+- Generate dialogue samples
+- Generate story arc ideas
+- Analyze saved relationships
+- Generate backstory and conflict ideas
+- Review character timeline information
+- Add optional writer instructions
+- Copy generated writing output to the clipboard
 
 ## Tech Stack
 
@@ -101,7 +112,10 @@ src/
 - Tracks chapter and scene appearances
 - Manages character relationships
 - Records character timeline events
-- Includes an AI tools placeholder for future writing features
+- Provides an AI Writing Assistant workspace
+- Generates structured writing assistance using saved character data
+- Supports summaries, personality analysis, dialogue, story arcs, relationships, backstories, conflicts, and timeline reviews
+- Includes loading, empty, status, clear, and copy states
 
 ## Data Persistence
 
@@ -136,13 +150,15 @@ The current version includes:
 - Character tags
 - Advanced search, filtering, and sorting
 - Novel statistics dashboard
+- Local AI Writing Assistant
 
 ## Planned Features
 
 - Story continuity checker
 - Character consistency checker
-- AI-powered character summaries
-- AI-assisted writing tools
+- Real AI integration through a secure backend API
+- AI-powered story continuity checking
+- AI-powered character consistency analysis
 - JSON import and export
 - Node.js + Express backend
 - PostgreSQL database
