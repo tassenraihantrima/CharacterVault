@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import RelationshipGraph from './RelationshipGraph'
+import {
+    generateAiWriting
+} from '../services/aiApi'
 
 function CharacterProfile({
     character,
@@ -39,18 +42,21 @@ function CharacterProfile({
     // Stores optional instructions entered by the writer.
     const [aiInstructions, setAiInstructions] = useState('')
 
-    // Stores the generated writing-assistant result.
+    // Stores the generated AI writing result.
     const [aiOutput, setAiOutput] = useState('')
 
-    // Tracks whether the local generator is currently running.
+    // Tracks whether a real AI request is currently running.
     const [isGenerating, setIsGenerating] = useState(false)
 
-    // Stores a small validation or status message for the AI panel.
+    // Stores a validation, success, or error message for the AI panel.
     const [aiMessage, setAiMessage] = useState('')
 
     /*
-     * Whenever the selected character changes, clear temporary UI values.
-     * Without this effect, an AI result generated for one character could remain visible after the user selects a different character.
+     * Clear temporary interface values whenever the selected
+     * character changes.
+     *
+     * This prevents AI output generated for one character from
+     * remaining visible after another character is selected.
      */
     useEffect(() => {
         setAiOutput('')
@@ -59,7 +65,7 @@ function CharacterProfile({
         setNewTag('')
     }, [character?.id])
 
-    // If no character is selected, display the existing empty state.
+    // Display the empty profile state when no character is selected.
     if (!character) {
         return (
             <section className="panel profilePanel">
@@ -73,96 +79,27 @@ function CharacterProfile({
     }
 
     /*
-     * Returns a cleaned value for character information.
-     */
-    function getCharacterValue(value, fallback) {
-        if (typeof value !== 'string') {
-            return fallback
-        }
-
-        const cleanedValue = value.trim()
-
-        return cleanedValue || fallback
-    }
-
-    /*
-     * Returns the character's tags as a readable sentence.
-     */
-    function getTagText() {
-        const tags = character.tags || []
-
-        if (tags.length === 0) {
-            return 'No custom tags have been added.'
-        }
-
-        return tags.join(', ')
-    }
-
-    /*
-     * Returns a readable description of the character's relationships.
-     */
-    function getRelationshipText() {
-        const relationships = character.relationships || []
-
-        if (relationships.length === 0) {
-            return 'No relationships have been recorded.'
-        }
-
-        return relationships
-            .map(relationship => {
-                const name =
-                    relationship.relatedName || 'Unnamed character'
-
-                const type =
-                    relationship.type || 'unspecified relationship'
-
-                return `${name} (${type})`
-            })
-            .join(', ')
-    }
-
-    /*
-     * Returns a readable list of major timeline events.
-     */
-    function getTimelineText() {
-        const timeline = character.timeline || []
-
-        if (timeline.length === 0) {
-            return 'No timeline events have been recorded.'
-        }
-
-        return timeline
-            .slice(0, 4)
-            .map(event => {
-                const title = event.event || 'Untitled event'
-                const chapter = event.chapter
-                    ? `Chapter ${event.chapter}`
-                    : 'Unknown chapter'
-
-                return `${title} — ${chapter}`
-            })
-            .join('; ')
-    }
-
-    /*
-     * Handles image uploads for the selected character.
+     * Handles portrait uploads for the selected character.
      */
     function handlePortraitUpload(event) {
         // Get the first selected file.
         const file = event.target.files[0]
 
-        // Stop if no image was selected.
+        // Stop if the user did not select a file.
         if (!file) return
 
-        // Create a FileReader to convert the image into a Base64 string.
+        // Only allow image files.
+        if (!file.type.startsWith('image/')) {
+            return
+        }
+
+        // Convert the image into a Base64 string.
         const reader = new FileReader()
 
-        // This function runs after the file has been converted.
         reader.onloadend = () => {
             onUpdateCharacter('portrait', reader.result)
         }
 
-        // Begin reading the file.
         reader.readAsDataURL(file)
     }
 
@@ -184,9 +121,9 @@ function CharacterProfile({
         }
 
         onAddWhereUsed({
-            chapter,
-            scene,
-            notes: sceneNotes
+            chapter: chapter.trim(),
+            scene: scene.trim(),
+            notes: sceneNotes.trim()
         })
 
         setChapter('')
@@ -207,9 +144,9 @@ function CharacterProfile({
         }
 
         onAddRelationship({
-            relatedName,
-            type: relationshipType,
-            notes: relationshipNotes
+            relatedName: relatedName.trim(),
+            type: relationshipType.trim(),
+            notes: relationshipNotes.trim()
         })
 
         setRelatedName('')
@@ -231,10 +168,10 @@ function CharacterProfile({
         }
 
         onAddTimelineEvent({
-            chapter: timelineChapter,
-            age: timelineAge,
-            event: timelineEvent,
-            notes: timelineNotes
+            chapter: timelineChapter.trim(),
+            age: timelineAge.trim(),
+            event: timelineEvent.trim(),
+            notes: timelineNotes.trim()
         })
 
         setTimelineChapter('')
@@ -254,9 +191,16 @@ function CharacterProfile({
 
         const currentTags = character.tags || []
 
-        // Check for an existing tag while ignoring capitalization.
+        /*
+         * Prevent duplicate tags while ignoring capitalization.
+         *
+         * Example:
+         * Hero and hero are treated as the same tag.
+         */
         const duplicateExists = currentTags.some(
-            tag => tag.toLowerCase() === cleanedTag.toLowerCase()
+            tag =>
+                tag.toLowerCase() ===
+                cleanedTag.toLowerCase()
         )
 
         if (duplicateExists) {
@@ -264,8 +208,11 @@ function CharacterProfile({
             return
         }
 
-        // Save a new tags array through the existing update function.
-        onUpdateCharacter('tags', [...currentTags, cleanedTag])
+        // Save the updated tag array.
+        onUpdateCharacter(
+            'tags',
+            [...currentTags, cleanedTag]
+        )
 
         setNewTag('')
     }
@@ -292,452 +239,62 @@ function CharacterProfile({
     }
 
     /*
-     * Produces a local character summary.
-     * This does not call an external AI service yet. 
-     * The purpose for now is to build the writing-assistant interface and organize generation logic.
+     * Requests real AI-generated writing from the Express backend.
      */
-    function createCharacterSummary() {
-        const name = getCharacterValue(
-            character.name,
-            'This unnamed character'
-        )
-
-        const role = getCharacterValue(
-            character.role,
-            'an undefined role'
-        )
-
-        const age = getCharacterValue(
-            character.age,
-            'an unspecified age'
-        )
-
-        const personality = getCharacterValue(
-            character.personality,
-            'Their personality has not been fully developed.'
-        )
-
-        const goal = getCharacterValue(
-            character.goal,
-            'Their central goal has not been defined.'
-        )
-
-        const conflict = getCharacterValue(
-            character.conflict,
-            'Their main conflict has not been defined.'
-        )
-
-        return `${name} is ${role} and is currently described as being ${age}. ${personality} ${goal} ${conflict} Character tags: ${getTagText()}`
-    }
-
-    /*
-     * Produces a structured personality analysis.
-     */
-    function createPersonalityAnalysis() {
-        const personality = getCharacterValue(
-            character.personality,
-            'No personality description is available.'
-        )
-
-        const goal = getCharacterValue(
-            character.goal,
-            'No central goal has been recorded.'
-        )
-
-        const conflict = getCharacterValue(
-            character.conflict,
-            'No main conflict has been recorded.'
-        )
-
-        return `PERSONALITY OVERVIEW
-
-${personality}
-
-POSSIBLE STRENGTH
-
-This character may appear determined because their behavior can be connected to the following goal: ${goal}
-
-POSSIBLE WEAKNESS
-
-Their strongest weakness may develop from the pressure created by this conflict: ${conflict}
-
-WRITING QUESTION
-
-What personal belief causes this character to make difficult choices, even when a safer option is available?`
-    }
-
-    /*
-     * Produces improvement suggestions based on incomplete profile fields.
-     */
-    function createImprovementSuggestions() {
-        const suggestions = []
-
-        if (!character.personality?.trim()) {
-            suggestions.push(
-                'Add specific personality traits instead of only broad labels.'
-            )
-        }
-
-        if (!character.goal?.trim()) {
-            suggestions.push(
-                'Give the character a clear goal that can be achieved or lost.'
-            )
-        }
-
-        if (!character.conflict?.trim()) {
-            suggestions.push(
-                'Add an internal or external conflict that prevents easy success.'
-            )
-        }
-
-        if (!character.notes?.trim()) {
-            suggestions.push(
-                'Use the notes field to record secrets, habits, fears, or contradictions.'
-            )
-        }
-
-        if ((character.relationships || []).length === 0) {
-            suggestions.push(
-                'Add at least one meaningful relationship that changes the character.'
-            )
-        }
-
-        if ((character.timeline || []).length === 0) {
-            suggestions.push(
-                'Add timeline events to show how the character changes throughout the novel.'
-            )
-        }
-
-        if ((character.tags || []).length === 0) {
-            suggestions.push(
-                'Add tags to describe the character’s function, themes, or important traits.'
-            )
-        }
-
-        if (suggestions.length === 0) {
-            suggestions.push(
-                'The profile contains strong foundational details. Focus next on contradictions, consequences, and gradual character change.'
-            )
-        }
-
-        return `CHARACTER IMPROVEMENT IDEAS
-
-${suggestions
-                .map((suggestion, index) => `${index + 1}. ${suggestion}`)
-                .join('\n')}`
-    }
-
-    /*
-     * Produces a short dialogue sample.
-     */
-    function createDialogueSample() {
-        const name = getCharacterValue(
-            character.name,
-            'Character'
-        )
-
-        const goal = getCharacterValue(
-            character.goal,
-            'something important'
-        )
-
-        const conflict = getCharacterValue(
-            character.conflict,
-            'the problem standing in their way'
-        )
-
-        const relationship =
-            (character.relationships || [])[0]
-
-        const otherCharacter =
-            relationship?.relatedName || 'Another Character'
-
-        return `${name}: "I did not come this far to walk away from ${goal}."
-
-${otherCharacter}: "And what happens when ${conflict} costs more than you expected?"
-
-${name}: "Then I will decide what matters more—the life I planned or the person I became while fighting for it."
-
-Writing note: Rewrite the sample to match the character's age, setting, speaking style, and relationship dynamics.`
-    }
-
-    /*
-     * Produces several possible story-arc directions.
-     */
-    function createStoryArcIdeas() {
-        const name = getCharacterValue(
-            character.name,
-            'The character'
-        )
-
-        const goal = getCharacterValue(
-            character.goal,
-            'their central goal'
-        )
-
-        const conflict = getCharacterValue(
-            character.conflict,
-            'their central conflict'
-        )
-
-        return `POSSIBLE STORY ARCS FOR ${name.toUpperCase()}
-
-1. Growth Arc
-
-${name} begins by pursuing ${goal}, but eventually realizes that overcoming ${conflict} requires changing a deeply held belief.
-
-2. Fall Arc
-
-${name} becomes increasingly obsessed with ${goal}. Their attempts to defeat ${conflict} gradually damage their relationships and sense of identity.
-
-3. Revelation Arc
-
-New information changes how ${name} understands ${goal}. The character must decide whether the original goal is still worth pursuing.
-
-4. Sacrifice Arc
-
-${name} gets close to achieving ${goal}, but must give it up to protect someone or prevent a greater consequence.`
-    }
-
-    /*
-     * Produces a relationship analysis from saved relationship data.
-     */
-    function createRelationshipAnalysis() {
-        const relationships = character.relationships || []
-
-        if (relationships.length === 0) {
-            return `RELATIONSHIP ANALYSIS
-
-No relationships have been recorded for this character.
-
-Add at least one relationship with a type and notes so the writing assistant can produce a more useful analysis.`
-        }
-
-        const relationshipDetails = relationships
-            .map((relationship, index) => {
-                const name =
-                    relationship.relatedName ||
-                    'Unnamed character'
-
-                const type =
-                    relationship.type ||
-                    'unspecified relationship'
-
-                const notes =
-                    relationship.notes ||
-                    'No relationship notes have been added.'
-
-                return `${index + 1}. ${name}
-Type: ${type}
-Notes: ${notes}`
-            })
-            .join('\n\n')
-
-        return `RELATIONSHIP ANALYSIS
-
-${relationshipDetails}
-
-WRITING QUESTIONS
-
-- Which relationship has the greatest power imbalance?
-- Which relationship changes the most during the novel?
-- What does this character hide from the people closest to them?
-- Which relationship creates the strongest emotional consequence?`
-    }
-
-    /*
-     * Produces a backstory framework.
-     */
-    function createBackstoryIdeas() {
-        const personality = getCharacterValue(
-            character.personality,
-            'their current personality'
-        )
-
-        const goal = getCharacterValue(
-            character.goal,
-            'their present goal'
-        )
-
-        const conflict = getCharacterValue(
-            character.conflict,
-            'their main conflict'
-        )
-
-        return `BACKSTORY FRAMEWORK
-
-FORMATIVE EXPERIENCE
-
-Create a past event that explains part of ${personality}.
-
-ORIGIN OF THE GOAL
-
-Describe the first moment when ${character.name || 'this character'} began wanting ${goal}.
-
-PAST FAILURE
-
-Give the character an earlier failure connected to ${conflict}. This failure can explain why the present conflict feels personal.
-
-HIDDEN DETAIL
-
-Add one secret the character believes would change how others see them.
-
-UNRESOLVED CONNECTION
-
-Connect the backstory to one current relationship so the past continues affecting the present story.`
-    }
-
-    /*
-     * Produces conflict ideas using the character's current profile.
-     */
-    function createConflictIdeas() {
-        const goal = getCharacterValue(
-            character.goal,
-            'their central goal'
-        )
-
-        const currentConflict = getCharacterValue(
-            character.conflict,
-            'their existing conflict'
-        )
-
-        return `CONFLICT IDEAS
-
-1. External Conflict
-
-A person or system gains the power to prevent the character from achieving ${goal}.
-
-2. Internal Conflict
-
-The character realizes that achieving ${goal} may require becoming someone they do not respect.
-
-3. Relationship Conflict
-
-A trusted person supports the goal but disagrees with the character's methods.
-
-4. Escalation
-
-The current conflict—${currentConflict}—creates a second problem that is more personal and harder to reverse.
-
-5. Impossible Choice
-
-The character must choose between the goal and protecting an important relationship.`
-    }
-
-    /*
-     * Produces a basic timeline consistency review.
-     */
-    function createTimelineReview() {
-        const timeline = character.timeline || []
-
-        if (timeline.length === 0) {
-            return `TIMELINE REVIEW
-
-No timeline events have been recorded.
-
-Add chapters, ages, event descriptions, and notes before checking the character's development timeline.`
-        }
-
-        const timelineDetails = timeline
-            .map((event, index) => {
-                const chapter =
-                    event.chapter || 'Unknown chapter'
-
-                const age =
-                    event.age || 'Unknown age'
-
-                const title =
-                    event.event || 'Untitled event'
-
-                return `${index + 1}. Chapter: ${chapter}
-Age: ${age}
-Event: ${title}`
-            })
-            .join('\n\n')
-
-        return `TIMELINE REVIEW
-
-${timelineDetails}
-
-MANUAL CONSISTENCY CHECK
-
-- Confirm that chapter numbers appear in the correct order.
-- Confirm that the character's age changes logically.
-- Check whether major emotional changes have enough development.
-- Check whether later behavior reflects earlier timeline events.
-- Add missing transition events where the character changes suddenly.`
-    }
-
-    /*
-     * Chooses the correct local generator based on the selected tool.
-     */
-    function buildAiOutput() {
-        switch (selectedAiTool) {
-            case 'summary':
-                return createCharacterSummary()
-
-            case 'personality':
-                return createPersonalityAnalysis()
-
-            case 'improvements':
-                return createImprovementSuggestions()
-
-            case 'dialogue':
-                return createDialogueSample()
-
-            case 'storyArc':
-                return createStoryArcIdeas()
-
-            case 'relationships':
-                return createRelationshipAnalysis()
-
-            case 'backstory':
-                return createBackstoryIdeas()
-
-            case 'conflict':
-                return createConflictIdeas()
-
-            case 'timeline':
-                return createTimelineReview()
-
-            default:
-                return createCharacterSummary()
-        }
-    }
-
-    /*
-     * Runs the selected writing assistant.
-     * A short timeout creates a visible loading state. This also prepares the UI
-     * for next update, when generation will become an asynchronous API request.
-     */
-    function handleGenerateAiOutput() {
+    async function handleGenerateAiOutput() {
+        // Prevent duplicate requests while one request is running.
+        if (isGenerating) return
+
+        // Start the loading interface.
         setIsGenerating(true)
-        setAiMessage('')
+
+        // Clear the previous result and status message.
         setAiOutput('')
+        setAiMessage('')
 
-        window.setTimeout(() => {
-            const generatedOutput = buildAiOutput()
+        try {
+            /*
+             * Send the selected writing tool, character profile,
+             * and optional instructions to the backend.
+             */
+            const result = await generateAiWriting({
+                tool: selectedAiTool,
+                character,
+                writerInstructions:
+                    aiInstructions.trim()
+            })
 
-            const instructions = aiInstructions.trim()
+            // Display the generated response.
+            setAiOutput(result.output)
 
-            const finalOutput = instructions
-                ? `${generatedOutput}
+            // Display the model used when the backend returns it.
+            setAiMessage(
+                result.model
+                    ? `Generated with ${result.model}.`
+                    : 'AI response generated successfully.'
+            )
+        } catch (error) {
+            console.error(
+                'Writing assistant request failed:',
+                error
+            )
 
-CUSTOM WRITER INSTRUCTIONS
-
-${instructions}
-
-Note: Real AI instruction handling will be added when the backend API is connected.`
-                : generatedOutput
-
-            setAiOutput(finalOutput)
+            /*
+             * Display a readable network or backend error
+             * instead of allowing the component to crash.
+             */
+            setAiMessage(
+                error.message ||
+                'The writing assistant could not generate a response.'
+            )
+        } finally {
+            // Stop the loading interface after success or failure.
             setIsGenerating(false)
-            setAiMessage('Writing assistant output generated.')
-        }, 500)
+        }
     }
 
     /*
-     * Clears the current writing-assistant output and instructions.
+     * Clears the current AI output and optional instructions.
      */
     function clearAiWorkspace() {
         setAiOutput('')
@@ -753,7 +310,10 @@ Note: Real AI instruction handling will be added when the backend API is connect
 
         try {
             await navigator.clipboard.writeText(aiOutput)
-            setAiMessage('Output copied to clipboard.')
+
+            setAiMessage(
+                'Output copied to clipboard.'
+            )
         } catch {
             setAiMessage(
                 'The browser could not copy the output automatically.'
@@ -765,17 +325,17 @@ Note: Real AI instruction handling will be added when the backend API is connect
         <section className="panel profilePanel">
             {/* Selected character header */}
             <div className="profileHeader">
-                {/* Show the portrait when available. */}
+                {/* Display a portrait when one exists. */}
                 {character.portrait ? (
                     <img
                         src={character.portrait}
-                        alt={`${character.name} portrait`}
+                        alt={`${character.name || 'Character'} portrait`}
                         className="portraitImage"
                     />
                 ) : (
                     /*
-                     * Show the first letter of the character's name when no
-                     * portrait has been uploaded.
+                     * Display the first letter of the character's
+                     * name when no portrait has been uploaded.
                      */
                     <div className="largeAvatar">
                         {character.name
@@ -786,12 +346,16 @@ Note: Real AI instruction handling will be added when the backend API is connect
 
                 <div className="profileHeaderContent">
                     <h2>
-                        {character.name || 'Unnamed Character'}
+                        {character.name ||
+                            'Unnamed Character'}
                     </h2>
 
-                    <p>{character.role || 'No role yet'}</p>
+                    <p>
+                        {character.role ||
+                            'No role yet'}
+                    </p>
 
-                    {/* Preview the first few character tags. */}
+                    {/* Preview the first four tags. */}
                     {(character.tags || []).length > 0 && (
                         <div className="profileTagPreview">
                             {(character.tags || [])
@@ -831,7 +395,7 @@ Note: Real AI instruction handling will be added when the backend API is connect
                 )}
             </div>
 
-            {/* Character profile navigation tabs */}
+            {/* Character profile tabs */}
             <div className="tabs">
                 <button
                     type="button"
@@ -840,7 +404,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             ? 'activeTab'
                             : ''
                     }
-                    onClick={() => setActiveTab('profile')}
+                    onClick={() =>
+                        setActiveTab('profile')
+                    }
                 >
                     Profile
                 </button>
@@ -894,7 +460,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             ? 'activeTab'
                             : ''
                     }
-                    onClick={() => setActiveTab('tags')}
+                    onClick={() =>
+                        setActiveTab('tags')
+                    }
                 >
                     Tags
                 </button>
@@ -906,7 +474,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             ? 'activeTab'
                             : ''
                     }
-                    onClick={() => setActiveTab('ai')}
+                    onClick={() =>
+                        setActiveTab('ai')
+                    }
                 >
                     AI Tools
                 </button>
@@ -918,9 +488,12 @@ Note: Real AI instruction handling will be added when the backend API is connect
                     <div className="sectionCard">
                         <h3>General</h3>
 
-                        <label>Name</label>
+                        <label htmlFor="profileName">
+                            Name
+                        </label>
 
                         <input
+                            id="profileName"
                             value={character.name || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -930,9 +503,12 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             }
                         />
 
-                        <label>Role</label>
+                        <label htmlFor="profileRole">
+                            Role
+                        </label>
 
                         <input
+                            id="profileRole"
                             value={character.role || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -942,9 +518,12 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             }
                         />
 
-                        <label>Age</label>
+                        <label htmlFor="profileAge">
+                            Age
+                        </label>
 
                         <input
+                            id="profileAge"
                             value={character.age || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -958,9 +537,12 @@ Note: Real AI instruction handling will be added when the backend API is connect
                     <div className="sectionCard">
                         <h3>Story Development</h3>
 
-                        <label>Personality</label>
+                        <label htmlFor="profilePersonality">
+                            Personality
+                        </label>
 
                         <textarea
+                            id="profilePersonality"
                             value={
                                 character.personality || ''
                             }
@@ -972,9 +554,12 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             }
                         />
 
-                        <label>Goal</label>
+                        <label htmlFor="profileGoal">
+                            Goal
+                        </label>
 
                         <textarea
+                            id="profileGoal"
                             value={character.goal || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -984,10 +569,15 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             }
                         />
 
-                        <label>Conflict</label>
+                        <label htmlFor="profileConflict">
+                            Conflict
+                        </label>
 
                         <textarea
-                            value={character.conflict || ''}
+                            id="profileConflict"
+                            value={
+                                character.conflict || ''
+                            }
                             onChange={event =>
                                 onUpdateCharacter(
                                     'conflict',
@@ -996,9 +586,12 @@ Note: Real AI instruction handling will be added when the backend API is connect
                             }
                         />
 
-                        <label>Notes</label>
+                        <label htmlFor="profileNotes">
+                            Notes
+                        </label>
 
                         <textarea
+                            id="profileNotes"
                             value={character.notes || ''}
                             onChange={event =>
                                 onUpdateCharacter(
@@ -1020,7 +613,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                         <input
                             value={chapter}
                             onChange={event =>
-                                setChapter(event.target.value)
+                                setChapter(
+                                    event.target.value
+                                )
                             }
                             placeholder="Chapter"
                         />
@@ -1028,7 +623,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                         <input
                             value={scene}
                             onChange={event =>
-                                setScene(event.target.value)
+                                setScene(
+                                    event.target.value
+                                )
                             }
                             placeholder="Scene title"
                         />
@@ -1037,7 +634,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                     <textarea
                         value={sceneNotes}
                         onChange={event =>
-                            setSceneNotes(event.target.value)
+                            setSceneNotes(
+                                event.target.value
+                            )
                         }
                         placeholder="What happened in this scene?"
                     />
@@ -1062,13 +661,19 @@ Note: Real AI instruction handling will be added when the backend API is connect
                                 </h4>
 
                                 <p>
-                                    <strong>Scene:</strong>{' '}
-                                    {entry.scene}
+                                    <strong>
+                                        Scene:
+                                    </strong>{' '}
+                                    {entry.scene ||
+                                        'Not provided'}
                                 </p>
 
                                 <p>
-                                    <strong>Notes:</strong>{' '}
-                                    {entry.notes}
+                                    <strong>
+                                        Notes:
+                                    </strong>{' '}
+                                    {entry.notes ||
+                                        'No notes'}
                                 </p>
 
                                 <button
@@ -1134,7 +739,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                         {(character.relationships || []).map(
                             relationship => (
                                 <div
-                                    key={relationship.id}
+                                    key={
+                                        relationship.id
+                                    }
                                     className="relationshipCard"
                                 >
                                     <div className="relationshipCardHeader">
@@ -1186,8 +793,8 @@ Note: Real AI instruction handling will be added when the backend API is connect
                                 </h3>
 
                                 <p>
-                                    Drag the characters, zoom,
-                                    and explore their
+                                    Drag the characters,
+                                    zoom, and explore their
                                     connections.
                                 </p>
                             </div>
@@ -1259,48 +866,61 @@ Note: Real AI instruction handling will be added when the backend API is connect
                     <button
                         type="button"
                         className="primaryButton"
-                        onClick={handleAddTimelineEvent}
+                        onClick={
+                            handleAddTimelineEvent
+                        }
                     >
                         Add Timeline Event
                     </button>
 
-                    {(character.timeline || []).map(event => (
-                        <div
-                            key={event.id}
-                            className="timelineCard"
-                        >
-                            <h4>
-                                {event.event ||
-                                    'Untitled Event'}
-                            </h4>
-
-                            <p>
-                                <strong>Chapter:</strong>{' '}
-                                {event.chapter || 'N/A'}
-                            </p>
-
-                            <p>
-                                <strong>Age:</strong>{' '}
-                                {event.age || 'N/A'}
-                            </p>
-
-                            <p>
-                                <strong>Notes:</strong>{' '}
-                                {event.notes}
-                            </p>
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    onDeleteTimelineEvent(
-                                        event.id
-                                    )
-                                }
+                    {(character.timeline || []).map(
+                        event => (
+                            <div
+                                key={event.id}
+                                className="timelineCard"
                             >
-                                Delete
-                            </button>
-                        </div>
-                    ))}
+                                <h4>
+                                    {event.event ||
+                                        'Untitled Event'}
+                                </h4>
+
+                                <p>
+                                    <strong>
+                                        Chapter:
+                                    </strong>{' '}
+                                    {event.chapter ||
+                                        'N/A'}
+                                </p>
+
+                                <p>
+                                    <strong>
+                                        Age:
+                                    </strong>{' '}
+                                    {event.age ||
+                                        'N/A'}
+                                </p>
+
+                                <p>
+                                    <strong>
+                                        Notes:
+                                    </strong>{' '}
+                                    {event.notes ||
+                                        'No notes'}
+                                </p>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        onDeleteTimelineEvent(
+                                            event.id
+                                        )
+                                    }
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )
+                    )}
                 </div>
             )}
 
@@ -1319,7 +939,9 @@ Note: Real AI instruction handling will be added when the backend API is connect
                         <input
                             value={newTag}
                             onChange={event =>
-                                setNewTag(event.target.value)
+                                setNewTag(
+                                    event.target.value
+                                )
                             }
                             onKeyDown={handleTagKeyDown}
                             placeholder="Enter a new tag"
@@ -1336,24 +958,28 @@ Note: Real AI instruction handling will be added when the backend API is connect
 
                     {(character.tags || []).length > 0 ? (
                         <div className="editableTagList">
-                            {(character.tags || []).map(tag => (
-                                <span
-                                    key={tag}
-                                    className="editableTagBadge"
-                                >
-                                    {tag}
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleDeleteTag(tag)
-                                        }
-                                        aria-label={`Remove ${tag} tag`}
+                            {(character.tags || []).map(
+                                tag => (
+                                    <span
+                                        key={tag}
+                                        className="editableTagBadge"
                                     >
-                                        ×
-                                    </button>
-                                </span>
-                            ))}
+                                        {tag}
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleDeleteTag(
+                                                    tag
+                                                )
+                                            }
+                                            aria-label={`Remove ${tag} tag`}
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )
+                            )}
                         </div>
                     ) : (
                         <p className="emptyText">
@@ -1363,32 +989,34 @@ Note: Real AI instruction handling will be added when the backend API is connect
                 </div>
             )}
 
-            {/* AI Writing Assistant tab */}
+            {/* Real AI Writing Assistant tab */}
             {activeTab === 'ai' && (
                 <div className="sectionCard aiAssistantCard">
                     <div className="aiAssistantHeader">
                         <div>
                             <span className="aiEyebrow">
-                                Phase 17
+                                Phase 19
                             </span>
 
-                            <h3>AI Writing Assistant</h3>
+                            <h3>
+                                AI Writing Assistant
+                            </h3>
 
                             <p>
                                 Use the selected character's
                                 saved information to generate
-                                writing ideas and development
-                                prompts.
+                                context-aware writing ideas
+                                and development assistance.
                             </p>
                         </div>
 
                         <span className="localGeneratorBadge">
-                            Local Generator
+                            Real AI
                         </span>
                     </div>
 
                     <div className="aiWorkspace">
-                        {/* Left side: writing-tool controls */}
+                        {/* AI writing controls */}
                         <div className="aiControlPanel">
                             <label htmlFor="aiTool">
                                 Choose Writing Tool
@@ -1455,8 +1083,16 @@ Note: Real AI instruction handling will be added when the backend API is connect
                                         event.target.value
                                     )
                                 }
+                                maxLength={2000}
                                 placeholder="Example: Make the ideas darker, focus on romance, or use a fantasy setting."
                             />
+
+                            <p className="inputHelpText">
+                                {
+                                    aiInstructions.length
+                                }
+                                /2000 characters
+                            </p>
 
                             <div className="aiActionButtons">
                                 <button
@@ -1475,10 +1111,7 @@ Note: Real AI instruction handling will be added when the backend API is connect
                                 <button
                                     type="button"
                                     onClick={clearAiWorkspace}
-                                    disabled={
-                                        isGenerating &&
-                                        !aiOutput
-                                    }
+                                    disabled={isGenerating}
                                 >
                                     Clear
                                 </button>
@@ -1509,11 +1142,15 @@ Note: Real AI instruction handling will be added when the backend API is connect
                                     <li>
                                         Timeline events
                                     </li>
+
+                                    <li>
+                                        Chapter and scene appearances
+                                    </li>
                                 </ul>
                             </div>
                         </div>
 
-                        {/* Right side: generated writing output */}
+                        {/* AI-generated output */}
                         <div className="aiOutputPanel">
                             <div className="aiOutputHeader">
                                 <div>
@@ -1547,8 +1184,8 @@ Note: Real AI instruction handling will be added when the backend API is connect
                                     </div>
 
                                     <p>
-                                        Reviewing character
-                                        information...
+                                        Generating a response
+                                        with AI...
                                     </p>
                                 </div>
                             ) : aiOutput ? (
@@ -1566,15 +1203,19 @@ Note: Real AI instruction handling will be added when the backend API is connect
                                     </h4>
 
                                     <p>
-                                        Select a writing tool and
-                                        click Generate to create
-                                        ideas for this character.
+                                        Select a writing tool
+                                        and click Generate to
+                                        request AI writing
+                                        assistance.
                                     </p>
                                 </div>
                             )}
 
                             {aiMessage && (
-                                <p className="aiStatusMessage">
+                                <p
+                                    className="aiStatusMessage"
+                                    role="status"
+                                >
                                     {aiMessage}
                                 </p>
                             )}
@@ -1582,11 +1223,13 @@ Note: Real AI instruction handling will be added when the backend API is connect
                     </div>
 
                     <div className="aiNotice">
-                        <strong>Current version:</strong>{' '}
-                        These outputs are created locally from
-                        saved character data. A real AI API will
-                        be connected through the backend in
-                        Phase 19.
+                        <strong>
+                            AI-powered version:
+                        </strong>{' '}
+                        Character data is sent to the
+                        CharacterVault Express backend, which
+                        securely requests a generated response
+                        from the configured AI model.
                     </div>
                 </div>
             )}

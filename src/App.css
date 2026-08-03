@@ -1918,3 +1918,27 @@ button:hover {
     text-align: center;
   }
 }
+
+/*
+  Allow long backend status or error messages to wrap.
+*/
+.aiStatusMessage {
+  overflow-wrap: anywhere;
+}
+
+/*
+  Prevent active request buttons from looking clickable.
+*/
+.aiActionButtons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+/*
+  Highlight the real-AI badge slightly more strongly.
+*/
+.localGeneratorBadge {
+  border-color: rgba(95, 111, 255, 0.55);
+  background: rgba(95, 111, 255, 0.12);
+  color: #d9dcff;
+}

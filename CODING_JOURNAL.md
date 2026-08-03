@@ -1163,3 +1163,251 @@ Fallback values allow older novels to continue working without migration errors.
 The Novel Workspace displays cover settings and project details side by side on wide screens.
 
 The sections stack vertically on smaller screens to remain readable.
+
+---
+
+# Phase 19 – Express Backend and Real AI Integration
+
+## Objective
+
+Create a secure Express backend and connect the CharacterVault Writing Assistant to a real AI model.
+
+## Features Implemented
+
+- Created a separate Node.js and Express backend
+- Added a backend health endpoint
+- Added an AI generation API endpoint
+- Installed and configured the OpenAI JavaScript SDK
+- Used the OpenAI Responses API
+- Stored the OpenAI API key in a backend environment variable
+- Prevented the API key from being exposed in frontend code
+- Added server-side character prompt construction
+- Added writing-tool-specific prompt instructions
+- Sent profile details, tags, relationships, timelines, and appearances as AI context
+- Removed character portrait data before API requests
+- Replaced the local writing generator with real API requests
+- Added frontend and backend request validation
+- Added loading and error handling
+- Added handling for authentication and rate-limit errors
+- Added configurable AI model selection
+- Added CORS configuration
+- Added environment-variable example files
+- Added backend and frontend service separation
+- Updated the AI interface to identify real AI generation
+
+## Concepts Learned
+
+### Client-Server Architecture
+
+CharacterVault now contains two separate applications.
+
+The React frontend handles the user interface, while the Express backend handles secure API requests.
+
+The request flow is:
+
+```text
+React frontend
+    ↓
+Express API
+    ↓
+OpenAI Responses API
+    ↓
+Express API
+    ↓
+React frontend
+```
+
+This separation prevents sensitive server information from being included in browser code.
+
+### Express
+
+Express is used to create the CharacterVault backend.
+
+The backend receives HTTP requests, validates request data, calls the AI service, and returns JSON responses.
+
+Example:
+
+```javascript
+router.post("/generate", async (request, response) => {
+  const result = await generateCharacterWriting(
+    request.body
+  )
+
+  response.json(result)
+})
+```
+
+### REST API Routes
+
+The backend exposes API endpoints.
+
+The health endpoint uses:
+
+```text
+GET /api/health
+```
+
+The AI generation endpoint uses:
+
+```text
+POST /api/ai/generate
+```
+
+The frontend sends character data to the POST endpoint as JSON.
+
+### Environment Variables
+
+Sensitive and configurable values are stored in `.env` files.
+
+The backend environment contains:
+
+```env
+OPENAI_API_KEY=your_key
+OPENAI_MODEL=gpt-5.6-luna
+```
+
+The key is not stored in frontend source code or committed to GitHub.
+
+### OpenAI Responses API
+
+The backend uses the OpenAI Responses API to generate writing assistance.
+
+Example:
+
+```javascript
+const response = await openai.responses.create({
+  model,
+  instructions,
+  input
+})
+```
+
+Generated text is retrieved using:
+
+```javascript
+response.output_text
+```
+
+### Prompt Construction
+
+CharacterVault converts structured character data into a readable prompt.
+
+The prompt includes:
+
+- Profile information
+- Personality
+- Goal
+- Conflict
+- Notes
+- Tags
+- Relationships
+- Timeline events
+- Chapter and scene appearances
+- Optional writer instructions
+
+This allows the model to generate responses based on the selected character's saved information.
+
+### Service Layer
+
+AI logic is stored in a separate service file.
+
+```text
+openaiService.js
+```
+
+The route handles HTTP communication, while the service handles prompt creation and OpenAI requests.
+
+This keeps the backend organized and easier to maintain.
+
+### Asynchronous Requests
+
+The frontend uses `async` and `await` to communicate with the backend.
+
+Example:
+
+```javascript
+const result = await generateAiWriting({
+  tool,
+  character,
+  writerInstructions
+})
+```
+
+The interface remains responsive while waiting for the network response.
+
+### Fetch API
+
+The browser Fetch API sends a JSON request to the backend.
+
+Example:
+
+```javascript
+fetch("/api/ai/generate", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(data)
+})
+```
+
+### HTTP Status Codes
+
+The backend returns different status codes depending on the result.
+
+- `200` indicates success
+- `400` indicates invalid frontend data
+- `404` indicates an unknown API route
+- `429` indicates a request limit
+- `500` indicates a backend or AI-service failure
+
+This gives the frontend enough information to display meaningful feedback.
+
+### CORS
+
+CORS controls which frontend origins may call the backend.
+
+During local development, requests are allowed from:
+
+```text
+http://localhost:5173
+```
+
+This prevents unrelated browser origins from freely accessing the local API.
+
+### Input Validation
+
+The backend validates:
+
+- Writing-tool names
+- Character data
+- Writer-instruction type
+- Writer-instruction length
+
+Invalid requests are rejected before reaching the AI service.
+
+### Error Handling
+
+The frontend and backend both use `try...catch`.
+
+The backend hides internal error details and API secrets.
+
+The frontend catches failed network requests and displays a readable message instead of crashing.
+
+### Secret Management
+
+The OpenAI API key exists only in:
+
+```text
+server/.env
+```
+
+The file is excluded through `.gitignore`.
+
+A `.env.example` file documents the required configuration without containing a real secret.
+
+## Result
+
+CharacterVault now has a working full-stack AI feature.
+
+The Writing Assistant sends structured character information through a secure Express backend and returns real AI-generated summaries, analyses, dialogue, story arcs, backstories, conflicts, and timeline reviews.
