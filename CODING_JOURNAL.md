@@ -996,3 +996,170 @@ The writing assistant currently produces structured local responses using saved 
 No external AI model is being used yet.
 
 A future phase will connect the writing assistant to a secure backend API so prompts can be sent to a real AI model such as OpenAI.
+
+---
+
+# Phase 18 – Novel Settings and JSON Import/Export
+
+## Objective
+
+Add project-level novel settings and allow CharacterVault data to be exported and imported as JSON backup files.
+
+## Features Implemented
+
+- Created a reusable `NovelTools.jsx` component
+- Added a Novel Workspace section
+- Added novel cover uploads
+- Added novel genre
+- Added novel synopsis
+- Added writing status
+- Added current word count
+- Added target word count
+- Calculated novel writing progress
+- Added a responsive writing progress bar
+- Added selected-novel JSON export
+- Added complete-workspace JSON export
+- Added JSON backup import
+- Added support for importing one novel
+- Added support for replacing the complete workspace
+- Added confirmation before replacing existing data
+- Added validation for imported files
+- Added import and export status messages
+- Added compatibility with novels created before Phase 18
+- Added image size validation for novel covers
+
+## Concepts Learned
+
+### Novel Data Modeling
+
+Novel objects now store project-level information in addition to their characters.
+
+Example:
+
+```javascript
+{
+  id: 1,
+  title: "Draven's Dilemma",
+  genre: "Fantasy Romance",
+  synopsis: "A short novel summary...",
+  writingStatus: "Drafting",
+  currentWordCount: 25000,
+  targetWordCount: 80000,
+  cover: "",
+  characters: []
+}
+```
+
+Keeping this information inside the novel object ensures that every project stores its own settings.
+
+### Dynamic Property Updates
+
+The `updateNovel()` function updates one novel field using a dynamic property name.
+
+Example:
+
+```javascript
+function updateNovel(novelId, field, value) {
+  setNovels(
+    novels.map(novel =>
+      novel.id === novelId
+        ? {
+            ...novel,
+            [field]: value
+          }
+        : novel
+    )
+  )
+}
+```
+
+This allows the same function to update titles, genres, synopses, writing statuses, word counts, and cover images.
+
+### Derived Data
+
+Writing progress is calculated from the current and target word counts.
+
+The percentage is derived from existing novel data instead of being stored separately.
+
+This prevents duplicated values and keeps the progress display synchronized automatically.
+
+### Blob API
+
+The browser Blob API converts JSON text into a downloadable file.
+
+Example:
+
+```javascript
+const fileBlob = new Blob(
+  [jsonContent],
+  {
+    type: "application/json"
+  }
+)
+```
+
+A temporary browser URL is then created so the file can be downloaded.
+
+### JSON Serialization
+
+`JSON.stringify()` converts JavaScript data into JSON text.
+
+Example:
+
+```javascript
+JSON.stringify(exportData, null, 2)
+```
+
+The indentation value keeps exported files readable.
+
+### JSON Parsing
+
+`JSON.parse()` converts imported JSON text back into JavaScript objects.
+
+Invalid JSON is handled using a `try...catch` statement so the application does not crash.
+
+### FileReader API
+
+The FileReader API is used in two different ways.
+
+- `readAsDataURL()` converts cover images into Base64 strings
+- `readAsText()` reads JSON backup files as text
+
+This demonstrates how one browser API can process different file types.
+
+### Data Validation
+
+Imported files are checked before being added to CharacterVault.
+
+A valid novel must contain:
+
+- A title
+- A characters array
+
+Unsupported files display an error instead of changing application data.
+
+### Data Normalization
+
+Imported novels and nested entries receive new IDs.
+
+This reduces the chance of duplicate IDs when a novel is imported into an existing workspace.
+
+Missing fields such as tags, relationships, timelines, covers, and writing settings also receive fallback values.
+
+### Confirmation Dialogs
+
+The browser confirmation dialog is displayed before replacing the complete workspace.
+
+This prevents accidental loss of existing LocalStorage data.
+
+### Backward Compatibility
+
+Novels created before Phase 18 do not contain genre, synopsis, writing status, word count, or cover properties.
+
+Fallback values allow older novels to continue working without migration errors.
+
+### Responsive Layout
+
+The Novel Workspace displays cover settings and project details side by side on wide screens.
+
+The sections stack vertically on smaller screens to remain readable.

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import StatisticsPanel from './components/StatisticsPanel'
+import NovelTools from './components/NovelTools'
 import NovelList from './components/NovelList'
 import CharacterList from './components/CharacterList'
 import CharacterProfile from './components/CharacterProfile'
@@ -12,9 +13,39 @@ function App() {
     return saved
       ? JSON.parse(saved)
       : [
-        { id: 1, title: 'Royally Chosen', characters: [] },
-        { id: 2, title: "Zinnia's Wedding Crasher", characters: [] },
-        { id: 3, title: "Draven's Dilemma", characters: [] }
+        {
+          id: 1,
+          title: 'Royally Chosen',
+          genre: '',
+          synopsis: '',
+          writingStatus: 'Planning',
+          currentWordCount: '',
+          targetWordCount: '',
+          cover: '',
+          characters: []
+        },
+        {
+          id: 2,
+          title: "Zinnia's Wedding Crasher",
+          genre: '',
+          synopsis: '',
+          writingStatus: 'Planning',
+          currentWordCount: '',
+          targetWordCount: '',
+          cover: '',
+          characters: []
+        },
+        {
+          id: 3,
+          title: "Draven's Dilemma",
+          genre: '',
+          synopsis: '',
+          writingStatus: 'Planning',
+          currentWordCount: '',
+          targetWordCount: '',
+          cover: '',
+          characters: []
+        }
       ]
   })
 
@@ -39,13 +70,26 @@ function App() {
   function addNovel(title) {
     if (!title.trim()) return
 
+    /*
+      Every new novel now includes project settings
+      introduced during Phase 18.
+    */
     const newNovel = {
       id: Date.now(),
-      title,
+      title: title.trim(),
+      genre: '',
+      synopsis: '',
+      writingStatus: 'Planning',
+      currentWordCount: '',
+      targetWordCount: '',
+      cover: '',
       characters: []
     }
 
-    setNovels([...novels, newNovel])
+    setNovels([
+      ...novels,
+      newNovel
+    ])
   }
 
   // Delete a novel
@@ -56,6 +100,58 @@ function App() {
       setSelectedNovelId(null)
       setSelectedCharacterId(null)
     }
+  }
+
+  /*
+  Update one property belonging to a novel.
+  */
+  function updateNovel(novelId, field, value) {
+    setNovels(
+      novels.map(novel =>
+        novel.id === novelId
+          ? {
+            ...novel,
+            [field]: value
+          }
+          : novel
+      )
+    )
+  }
+
+  /*
+    Replace the complete CharacterVault workspace with
+    novels loaded from an imported backup.
+  */
+  function importWorkspace(importedNovels) {
+    if (!Array.isArray(importedNovels)) return
+
+    setNovels(importedNovels)
+
+    /*
+      Clear the old selections because their IDs will no
+      longer belong to the imported workspace.
+    */
+    setSelectedNovelId(null)
+    setSelectedCharacterId(null)
+  }
+
+  /*
+    Add one imported novel without deleting the novels that
+    are already stored.
+  */
+  function importNovel(importedNovel) {
+    if (!importedNovel) return
+
+    setNovels([
+      ...novels,
+      importedNovel
+    ])
+
+    /*
+      Automatically select the newly imported novel.
+    */
+    setSelectedNovelId(importedNovel.id)
+    setSelectedCharacterId(null)
   }
 
   // Add a new character to selected novel
@@ -316,6 +412,14 @@ function App() {
       </header>
 
       <StatisticsPanel selectedNovel={selectedNovel} />
+
+      <NovelTools
+        novels={novels}
+        selectedNovel={selectedNovel}
+        onUpdateNovel={updateNovel}
+        onImportWorkspace={importWorkspace}
+        onImportNovel={importNovel}
+      />
 
       <main className="layout">
         <NovelList

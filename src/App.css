@@ -1603,3 +1603,318 @@ button:hover {
     padding: 10px;
   }
 }
+
+/* Main Novel Workspace container */
+.novelToolsSection {
+  margin: 16px 18px 0;
+  padding: 18px;
+  border: 1px solid #2d3040;
+  border-radius: 14px;
+  background: #1b1d29;
+}
+
+/* Novel Workspace title area */
+.novelToolsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+/* Phase label */
+.novelToolsEyebrow {
+  display: inline-block;
+  margin-bottom: 4px;
+  color: #9fa8ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Workspace heading */
+.novelToolsHeader h2 {
+  margin-bottom: 5px;
+}
+
+/* Workspace description */
+.novelToolsHeader p {
+  color: #a9adbd;
+}
+
+/* Writing status badge */
+.novelStatusBadge {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border: 1px solid #454c75;
+  border-radius: 999px;
+  background: #303652;
+  color: #d9dcff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Settings and backup navigation */
+.novelToolsTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #303449;
+}
+
+/* Tool navigation buttons */
+.novelToolsTabs button {
+  background: #25293b;
+}
+
+/* Active tool navigation button */
+.novelToolsTabs button.activeNovelToolTab {
+  background: #5f6fff;
+  color: white;
+}
+
+/* Cover and metadata layout */
+.novelSettingsLayout {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 0.65fr) minmax(0, 2fr);
+  gap: 18px;
+}
+
+/* Shared settings panels */
+.novelCoverPanel,
+.novelMetadataPanel {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #35394d;
+  border-radius: 14px;
+  background: #242737;
+}
+
+/* Uploaded cover */
+.novelCoverImage {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 2 / 3;
+  display: block;
+  margin: 12px auto;
+  border: 1px solid #4a5066;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.28);
+}
+
+/* Empty cover state */
+.novelCoverPlaceholder {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 2 / 3;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  margin: 12px auto;
+  padding: 20px;
+  text-align: center;
+  border: 1px dashed #50566f;
+  border-radius: 12px;
+  background: #181b27;
+}
+
+/* Large initial inside empty cover */
+.novelCoverPlaceholder span {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #5f6fff;
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+/* Empty cover description */
+.novelCoverPlaceholder p {
+  color: #999daf;
+}
+
+/* Cover upload actions */
+.novelCoverActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Two-column metadata form */
+.novelSettingsGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Space above word-count section */
+.wordCountHeading {
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+/* Writing progress card */
+.writingProgressCard {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #181b27;
+}
+
+/* Progress title and percentage */
+.writingProgressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* Progress percentage */
+.writingProgressHeader strong {
+  color: #aeb5ff;
+}
+
+/* Empty progress track */
+.writingProgressTrack {
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #303449;
+}
+
+/* Filled progress amount */
+.writingProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: #5f6fff;
+  transition: width 0.3s ease;
+}
+
+/* Word-count summary */
+.writingProgressCard p {
+  margin-top: 9px;
+  color: #9fa3b5;
+  font-size: 13px;
+}
+
+/* Import/export card layout */
+.backupToolsGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Individual backup tool */
+.backupToolCard {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid #35394d;
+  border-radius: 14px;
+  background: #242737;
+}
+
+/* Backup icon */
+.backupToolIcon {
+  font-size: 30px;
+}
+
+/* Backup heading */
+.backupToolCard h3 {
+  margin: 12px 0 8px;
+}
+
+/* Backup explanation */
+.backupToolCard p {
+  flex: 1;
+  margin-bottom: 16px;
+  color: #a9adbd;
+  line-height: 1.55;
+}
+
+/* Import-file button */
+.backupImportButton {
+  width: 100%;
+  display: block;
+  cursor: pointer;
+  padding: 10px 12px;
+  text-align: center;
+  border-radius: 8px;
+  background: #5f6fff;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Import-file button hover */
+.backupImportButton:hover {
+  background: #7583ff;
+}
+
+/* Hide the normal file input */
+.backupImportButton input {
+  display: none;
+}
+
+/* Import/export feedback */
+.novelToolMessage {
+  margin-top: 16px;
+  padding: 11px 13px;
+  border: 1px solid #454c75;
+  border-radius: 10px;
+  background: #303652;
+  color: #d9dcff;
+  font-size: 14px;
+}
+
+/* Medium-screen settings layout */
+@media (max-width: 1050px) {
+  .novelSettingsLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .backupToolsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile settings adjustments */
+@media (max-width: 650px) {
+  .novelToolsSection {
+    margin: 12px 12px 0;
+    padding: 14px;
+  }
+
+  .novelToolsHeader {
+    flex-direction: column;
+  }
+
+  .novelSettingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .novelCoverActions {
+    flex-direction: column;
+  }
+
+  .novelCoverActions .uploadButton,
+  .novelCoverActions button {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -45,6 +45,15 @@ CharacterVault is a React web application designed to help writers organize nove
 - Review character timeline information
 - Add optional writer instructions
 - Copy generated writing output to the clipboard
+- Upload and remove novel covers
+- Store novel genres and synopses
+- Track writing status
+- Track current and target word counts
+- View automatic writing-progress percentages
+- Export one novel as a JSON backup
+- Export the complete CharacterVault workspace
+- Import previously exported JSON backups
+- Validate imported CharacterVault data
 
 ## Tech Stack
 
@@ -55,6 +64,8 @@ CharacterVault is a React web application designed to help writers organize nove
 - React Flow
 - LocalStorage
 - FileReader API
+- Blob API
+- JSON
 
 ## Project Structure
 
@@ -66,6 +77,7 @@ src/
 │   ├── CharacterProfile.jsx
 │   ├── RelationshipGraph.jsx
 │   └── StatisticsPanel.jsx
+│   ├── NovelTools.jsx
 ├── App.jsx
 ├── App.css
 ├── index.css
@@ -117,6 +129,16 @@ src/
 - Supports summaries, personality analysis, dialogue, story arcs, relationships, backstories, conflicts, and timeline reviews
 - Includes loading, empty, status, clear, and copy states
 
+### `NovelTools.jsx`
+
+- Manages novel covers and project metadata
+- Updates genres, synopses, and writing status
+- Tracks current and target word counts
+- Calculates writing progress
+- Exports selected novels as JSON
+- Exports the complete workspace as JSON
+- Imports and validates CharacterVault backups
+
 ## Data Persistence
 
 CharacterVault currently uses browser LocalStorage.
@@ -151,6 +173,8 @@ The current version includes:
 - Advanced search, filtering, and sorting
 - Novel statistics dashboard
 - Local AI Writing Assistant
+- Novel settings and writing progress
+- JSON import and export
 
 ## Planned Features
 
@@ -159,7 +183,6 @@ The current version includes:
 - Real AI integration through a secure backend API
 - AI-powered story continuity checking
 - AI-powered character consistency analysis
-- JSON import and export
 - Node.js + Express backend
 - PostgreSQL database
 - User authentication
