@@ -1,6 +1,48 @@
 # CharacterVault
 
-CharacterVault is a React web application designed to help writers organize novels, manage detailed character profiles, track story appearances, and document character development in one place.
+CharacterVault is a full-stack web application that helps fiction writers organize novels, manage detailed character profiles, track story continuity, visualize character relationships, and generate AI-assisted writing ideas.
+
+Built with React, Express.js, and the OpenAI Responses API, CharacterVault combines story planning, visualization, and AI assistance into a single writing workspace.
+
+## Live Application
+
+**Frontend:**  
+https://character-vault-three.vercel.app
+
+**Backend Health Check:**  
+https://character-vault-api.onrender.com/api/health
+
+> **Note:** The backend is hosted on Render's free tier. The first AI request after a period of inactivity may take up to one minute while the backend wakes up.
+
+## Screenshots
+
+### Dashboard
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Character Profile
+
+![Character Profile](docs/screenshots/character-profile.png)
+
+### Relationship Graph
+
+![Relationship Graph](docs/screenshots/relationship-graph.png)
+
+### AI Writing Assistant
+
+![AI Writing Assistant](docs/screenshots/ai-writing-assistant.png)
+
+## Application Architecture
+
+```text
+React (Vite Frontend)
+          │
+          ▼
+Express.js REST API
+          │
+          ▼
+OpenAI Responses API
+```
 
 ## Features
 
@@ -34,16 +76,6 @@ CharacterVault is a React web application designed to help writers organize nove
 - Organize character information using profile tabs
 - Save novels, characters, portraits, relationships, timelines, tags, and favorite status using LocalStorage
 - Responsive three-panel interface built with reusable React components
-- Generate character summaries
-- Generate personality analyses
-- Generate character improvement suggestions
-- Generate dialogue samples
-- Generate story arc ideas
-- Analyze saved relationships
-- Generate backstory and conflict ideas
-- Review character timeline information
-- Add optional writer instructions
-- Copy generated writing output to the clipboard
 - Upload and remove novel covers
 - Store novel genres and synopses
 - Track writing status
@@ -53,56 +85,75 @@ CharacterVault is a React web application designed to help writers organize nove
 - Export the complete CharacterVault workspace
 - Import previously exported JSON backups
 - Validate imported CharacterVault data
-- Use an AI-powered Writing Assistant through a secure Express backend
-- Generate context-aware character summaries and analyses
-- Generate AI-assisted dialogue, story arcs, backstories, and conflicts
-- Analyze relationships and character timelines using saved story data
-- Send optional writer instructions with AI generation requests
-- Display loading, success, and error states for AI requests
+- Generate AI-assisted character summaries
+- Generate personality analyses
+- Generate dialogue scenes
+- Generate story arc ideas
+- Generate backstory and conflict ideas
+- Analyze character relationships and timelines
+- Send optional writer instructions
+- Copy generated output to the clipboard
+- Display loading, success, and error states
+- Process AI requests securely through the Express backend
 
 ## Tech Stack
 
+### Frontend
+
 - React
-- JavaScript
+- JavaScript (ES6+)
 - Vite
-- CSS
+- CSS3
 - React Flow
+
+### Backend
+
+- Node.js
+- Express.js
+- OpenAI JavaScript SDK
+- OpenAI Responses API
+- REST APIs
+
+### Storage
+
 - LocalStorage
+- JSON
 - FileReader API
 - Blob API
-- JSON
-- Node.js
-- Express
-- OpenAI API
-- OpenAI JavaScript SDK
-- REST API
-- CORS
-- dotenv
+
+### Deployment
+
+- Vercel
+- Render
+- GitHub
+
+### Browser APIs
+
+- Fetch API
+- FileReader API
+- Blob API
 
 ## Project Structure
 
 ```text
 charactervault/
-├── server/
-│   ├── src/
-│   │   ├── routes/
-│   │   │   └── aiRoutes.js
-│   │   ├── services/
-│   │   │   └── openaiService.js
-│   │   └── server.js
-│   ├── .env.example
-│   └── package.json
 ├── src/
 │   ├── components/
 │   ├── services/
-│   │   └── aiApi.js
 │   ├── App.jsx
-│   ├── App.css
 │   └── main.jsx
-└── package.json
+├── server/
+│   ├── routes/
+│   ├── services/
+│   ├── server.js
+│   └── package.json
+├── docs/
+│   └── screenshots/
+├── package.json
+└── README.md
 ```
 
-## Main Components
+## Application Components
 
 ### `App.jsx`
 
@@ -164,7 +215,7 @@ charactervault/
 - Builds context-aware prompts from character data
 - Calls the OpenAI Responses API
 - Keeps API credentials outside the browser
-- Handles authentication, rate-limit, and server errors
+- Handles request validation, rate limiting, and server errors
 
 ## Data Persistence
 
@@ -172,48 +223,45 @@ CharacterVault currently uses browser LocalStorage.
 
 This allows novels and character data to remain available after refreshing the browser without requiring a backend database.
 
-Character portraits are converted into Base64 strings using the FileReader API and stored directly with each character.
+Character portraits are converted into Base64 strings using the FileReader API and stored directly with each character. JSON import and export provide portable backups until cloud synchronization is implemented.
 
-## Motivation
+## Why I Built CharacterVault
 
-When writing long novels, it becomes difficult to remember side characters, relationships, story events, and important details introduced many chapters earlier.
+As someone who enjoys writing novels, I often found it difficult to remember character relationships, chapter appearances, timelines, and important story details across long manuscripts.
 
-CharacterVault provides writers with a central workspace for organizing this information and maintaining story consistency throughout the writing process.
+Instead of relying on scattered notes and documents, I built CharacterVault to provide a centralized workspace where writers can organize stories, visualize relationships, and use AI to assist with character development and brainstorming.
 
 ## Project Status
 
-🚧 Currently in development.
+✅ CharacterVault is complete and publicly deployed.
 
-The current version includes:
+CharacterVault includes a production-ready React frontend, an Express.js backend, OpenAI Responses API integration, interactive relationship visualization, JSON import and export, responsive design, and cloud deployment using Vercel and Render.
 
-- Novel management
-- Character CRUD operations
-- Detailed editable character profiles
-- Browser persistence using LocalStorage
-- Chapter and scene tracking
-- Relationship management
-- Interactive relationship graph
-- Timeline tracking
-- Character portrait uploads
-- Favorite characters
-- Character tags
-- Advanced search, filtering, and sorting
-- Novel statistics dashboard
-- Local AI Writing Assistant
-- Novel settings and writing progress
-- JSON import and export
-- Express backend
-- REST API integration
-- Real AI-powered writing assistance
-- Secure server-side API key handling
+## Security
 
-## Planned Features
+- OpenAI API keys are stored only in backend environment variables
+- API keys are never exposed to the browser
+- Frontend requests are restricted through CORS
+- AI requests are protected with Express rate limiting
+- AI requests are validated before reaching the OpenAI API
+- Character portrait data is removed before AI requests are sent
 
-- Story continuity checker
-- Character consistency checker
-- AI-powered story continuity checking
-- AI-powered character consistency analysis
-- PostgreSQL database
+## Current Limitations
+
+- Data is stored in browser LocalStorage
+- No user authentication
+- No cloud synchronization
+- No PostgreSQL database
+- Rate limiting currently uses an in-memory store
+- The public demo shares a single backend AI service
+
+## Future Improvements
+
 - User authentication
+- PostgreSQL database
 - Cloud synchronization
-- Public deployment
+- Shared writing projects
+- AI-powered story continuity checker
+- Character consistency analysis
+- User-specific AI usage limits
+- Automated testing

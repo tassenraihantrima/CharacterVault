@@ -1411,3 +1411,254 @@ A `.env.example` file documents the required configuration without containing a 
 CharacterVault now has a working full-stack AI feature.
 
 The Writing Assistant sends structured character information through a secure Express backend and returns real AI-generated summaries, analyses, dialogue, story arcs, backstories, conflicts, and timeline reviews.
+
+---
+# Phase 20 – Production Security, Deployment, and Final Polish
+
+## Objective
+
+Prepare CharacterVault for secure public deployment, protect the AI backend, deploy the application to the cloud, perform end-to-end testing, and complete the project documentation.
+
+## Features Implemented
+
+- Installed Express rate-limiting middleware
+- Added rate limiting to the AI endpoint
+- Limited clients to 20 AI requests every 15 minutes
+- Added support for multiple approved frontend origins
+- Improved production CORS configuration
+- Added production reverse-proxy support
+- Expanded the backend health-check response
+- Added production environment configuration
+- Created frontend and backend `.env.example` files
+- Verified the Vite production build
+- Deployed the Express backend to Render
+- Deployed the React frontend to Vercel
+- Configured frontend and backend production environment variables
+- Connected the deployed frontend to the deployed backend
+- Added the deployed frontend URL to backend CORS settings
+- Verified production deployment through public URLs
+- Performed end-to-end production testing
+- Performed final responsive-layout testing
+- Added deployment information to the README
+- Added application screenshots to the README
+- Documented current application limitations
+- Completed the CharacterVault development roadmap
+
+## Concepts Learned
+
+### Production Environments
+
+Development and production environments use different configuration values.
+
+During local development, the frontend communicates with:
+
+```text
+http://localhost:5173
+```
+
+and the backend communicates through:
+
+```text
+http://localhost:3001
+```
+
+After deployment, the frontend is hosted on Vercel while the backend is hosted on Render.
+
+Environment variables allow these values to change without modifying the application source code.
+
+### Rate Limiting
+
+Rate limiting restricts how frequently one client can access an endpoint.
+
+CharacterVault limits AI requests to twenty requests during a fifteen-minute window.
+
+Example:
+
+```javascript
+const aiRequestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20
+})
+```
+
+This helps protect the paid OpenAI API from repeated requests and basic abuse.
+
+### Production CORS
+
+The backend accepts requests only from approved frontend origins.
+
+Multiple frontend addresses are stored as a comma-separated environment variable.
+
+Example:
+
+```env
+CLIENT_URL=http://localhost:5173,http://localhost:4173,https://character-vault-three.vercel.app
+```
+
+The backend converts the string into an array and verifies every incoming browser origin before allowing the request.
+
+### Reverse Proxies
+
+Hosted applications commonly run behind reverse proxies.
+
+Express must trust the production proxy so middleware can correctly identify the original client IP address.
+
+Example:
+
+```javascript
+app.set('trust proxy', 1)
+```
+
+### Health Checks
+
+A health-check endpoint confirms that the backend started successfully.
+
+CharacterVault provides:
+
+```text
+GET /api/health
+```
+
+The endpoint returns:
+
+- Service status
+- Environment
+- Service name
+- Current timestamp
+
+Deployment platforms use this endpoint to monitor application availability.
+
+### Production Builds
+
+The production frontend is created using:
+
+```bash
+npm run build
+```
+
+Vite generates an optimized production build inside the `dist` directory.
+
+Running the production build before deployment helps identify syntax, dependency, and bundling problems before publishing the application.
+
+### Frontend Deployment
+
+The React application is deployed using Vercel.
+
+The frontend receives the backend address through the following environment variable:
+
+```env
+VITE_API_URL=https://character-vault-api.onrender.com
+```
+
+Every AI request is sent to the deployed Express backend rather than directly to OpenAI.
+
+### Backend Deployment
+
+The Express backend is deployed as a Node.js web service on Render.
+
+Render automatically installs dependencies using:
+
+```bash
+npm install
+```
+
+and starts the backend using:
+
+```bash
+npm start
+```
+
+Environment variables, including the OpenAI API key, are configured through the deployment dashboard rather than committed to Git.
+
+### Secret Management
+
+Sensitive values are stored outside the source code.
+
+The real OpenAI API key exists only in:
+
+```text
+server/.env
+```
+
+during development or inside Render's environment variable settings in production.
+
+The repository contains `.env.example` files that document required environment variables without exposing secret values.
+
+### Cloud Deployment
+
+CharacterVault is deployed as two independent applications.
+
+```text
+React Frontend (Vercel)
+            │
+            ▼
+Express Backend (Render)
+            │
+            ▼
+OpenAI Responses API
+```
+
+Separating the frontend and backend keeps API keys secure while allowing both applications to be deployed independently.
+
+### End-to-End Testing
+
+Production testing verified the complete request flow.
+
+```text
+Deployed React Frontend
+          │
+          ▼
+Deployed Express Backend
+          │
+          ▼
+OpenAI Responses API
+          │
+          ▼
+Generated AI Response
+          │
+          ▼
+React User Interface
+```
+
+Testing confirmed that:
+
+- Environment variables loaded correctly
+- Production CORS configuration worked
+- The backend communicated with OpenAI
+- AI responses returned successfully
+- The deployed frontend communicated with the deployed backend
+- Public deployment functioned correctly
+
+### LocalStorage Limitations
+
+CharacterVault currently stores application data inside browser LocalStorage.
+
+Because LocalStorage is browser-specific:
+
+- Data is not automatically synchronized between devices.
+- Clearing browser storage removes saved information.
+- JSON export and import provide a temporary backup solution until a database and user authentication are implemented.
+
+## Result
+
+CharacterVault is now a complete and publicly deployed full-stack portfolio project.
+
+The final application demonstrates:
+
+- React component architecture
+- JavaScript application development
+- CRUD operations
+- Browser persistence using LocalStorage
+- Advanced searching, filtering, and sorting
+- File uploads
+- JSON import and export
+- Interactive relationship visualization with React Flow
+- Express REST APIs
+- OpenAI Responses API integration
+- Secure backend architecture
+- Environment variable management
+- CORS configuration
+- Rate limiting
+- Responsive web design
+- Cloud deployment using Vercel and Render
+- End-to-end production testing
