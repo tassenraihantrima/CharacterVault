@@ -54,14 +54,14 @@ body {
 /*
   Main three-column workspace.
 
-  The columns grow proportionally so the app fills large screens
-  without leaving the first two panels extremely narrow.
+  minmax(0, 1fr) allows the profile column to shrink without
+  pushing content beyond the right side of the browser.
 */
 .layout {
   width: 100%;
   display: grid;
   grid-template-columns:
-    minmax(260px, 0.75fr) minmax(420px, 1.2fr) minmax(560px, 2fr);
+    minmax(220px, 260px) minmax(340px, 420px) minmax(0, 1fr);
   align-items: start;
   gap: 18px;
   padding: 18px;
@@ -79,13 +79,13 @@ body {
 }
 
 /*
-  Allow the profile panel to grow naturally.
-
-  It no longer receives a fixed height or internal scrollbar.
+  Allow the profile panel to grow naturally without
+  horizontally clipping the AI output panel.
 */
 .profilePanel {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
   max-height: none;
   overflow: visible;
 }
@@ -597,26 +597,39 @@ button:hover {
   font-weight: 700;
 }
 
-/* Tag input and button row */
+/*
+  Tag input and button row.
+
+  The global primaryButton width is overridden here so the
+  input remains visible while typing.
+*/
 .tagInputRow {
+  width: 100%;
   display: flex;
   align-items: stretch;
   gap: 10px;
 }
 
-/* Tag input grows */
+/* Tag input takes the remaining width */
 .tagInputRow input {
-  flex: 1;
+  width: auto;
   min-width: 0;
+  flex: 1;
 }
 
-/* Tag button does not shrink */
+/* Prevent the Add Tag button from squeezing the input */
+.tagInputRow .primaryButton,
 .tagInputRow button {
+  width: auto;
+  min-width: 130px;
   flex-shrink: 0;
+  margin: 6px 0;
 }
 
 /* Dedicated tag-add button */
 .tagAddButton {
+  width: auto;
+  min-width: 130px;
   flex-shrink: 0;
   margin: 6px 0;
   background: #5f6fff;
@@ -687,9 +700,11 @@ button:hover {
 .editableTagBadge button {
   width: 24px;
   height: 24px;
+  min-width: 24px;
   display: grid;
   place-items: center;
   padding: 0;
+  margin: 0;
   border-radius: 50%;
   background: #464d70;
   color: white;
@@ -797,7 +812,9 @@ button:hover {
 
 /* Cards inside profile */
 .sectionCard {
+  width: 100%;
   min-width: 0;
+  max-width: 100%;
   padding: 14px;
   margin-bottom: 14px;
   border-radius: 12px;
@@ -1152,14 +1169,20 @@ button:hover {
 }
 
 /* =========================================================
-   PHASE 17 — AI WRITING ASSISTANT
+   PHASE 19 — AI WRITING ASSISTANT
    ========================================================= */
 
-/* Main AI card */
+/*
+  Main AI card.
+
+  Overflow remains visible so the right output border is not
+  clipped by the parent section.
+*/
 .aiAssistantCard {
   width: 100%;
   min-width: 0;
-  overflow: hidden;
+  max-width: 100%;
+  overflow: visible;
 }
 
 /* AI assistant heading */
@@ -1193,28 +1216,33 @@ button:hover {
   opacity: 0.7;
 }
 
-/* Local generator badge */
+/* Real-AI badge */
 .localGeneratorBadge {
   flex-shrink: 0;
   padding: 7px 11px;
-  border: 1px solid rgba(100, 116, 139, 0.3);
+  border: 1px solid rgba(95, 111, 255, 0.55);
   border-radius: 999px;
+  background: rgba(95, 111, 255, 0.12);
+  color: #d9dcff;
   font-size: 0.75rem;
   font-weight: 700;
   white-space: nowrap;
 }
 
 /*
-  AI workspace uses two columns on wide screens.
+  AI workspace.
 
-  Because the profile column now receives most of the page width,
-  the controls and output can safely appear side by side.
+  Both columns use zero minimum widths so the output panel
+  remains inside the profile card and its right border stays visible.
 */
 .aiWorkspace {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
   display: grid;
-  grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1.3fr);
+  grid-template-columns:
+    minmax(0, 0.8fr) minmax(0, 1.3fr);
+  align-items: start;
   gap: 18px;
 }
 
@@ -1223,6 +1251,7 @@ button:hover {
 .aiOutputPanel {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
   padding: 18px;
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 16px;
@@ -1246,6 +1275,7 @@ button:hover {
 .aiControlPanel select,
 .aiControlPanel textarea {
   width: 100%;
+  min-width: 0;
 }
 
 /* AI instruction textarea */
@@ -1301,11 +1331,20 @@ button:hover {
   line-height: 1.45;
 }
 
-/* AI output panel */
+/*
+  AI output panel.
+
+  Overflow is hidden only inside this bordered box, keeping all
+  content and the right border contained.
+*/
 .aiOutputPanel {
+  align-self: start;
   display: flex;
   flex-direction: column;
+  height: auto;
   min-height: 430px;
+  max-height: 720px;
+  overflow: hidden;
 }
 
 /* AI output header */
@@ -1313,6 +1352,7 @@ button:hover {
   width: 100%;
   min-width: 0;
   display: flex;
+  flex-shrink: 0;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
@@ -1342,16 +1382,24 @@ button:hover {
   font-size: 0.8rem;
 }
 
-/* Generated AI text */
+/*
+  Generated AI text.
+
+  Long responses scroll vertically inside the closed output box.
+*/
 .aiGeneratedText {
   width: 100%;
   min-width: 0;
-  flex: 1;
+  flex: initial;
+  max-height: 540px;
   margin: 0;
-  padding: 20px 2px 5px;
-  overflow-wrap: break-word;
+  padding: 20px 10px 5px 2px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
   word-break: normal;
   white-space: pre-wrap;
+  scrollbar-gutter: stable;
   font-family: inherit;
   font-size: 0.93rem;
   line-height: 1.7;
@@ -1359,6 +1407,7 @@ button:hover {
 
 /* AI empty state */
 .aiEmptyState {
+  min-height: 330px;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -1388,6 +1437,7 @@ button:hover {
 
 /* AI loading state */
 .aiLoadingState {
+  min-height: 330px;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -1446,14 +1496,16 @@ button:hover {
 
 /* AI status message */
 .aiStatusMessage {
+  flex-shrink: 0;
   margin: 14px 0 0;
   padding-top: 12px;
   border-top: 1px solid rgba(148, 163, 184, 0.25);
+  overflow-wrap: anywhere;
   font-size: 0.82rem;
   font-weight: 600;
 }
 
-/* Local generator notice */
+/* AI integration notice */
 .aiNotice {
   margin-top: 18px;
   padding: 14px 16px;
@@ -1473,136 +1525,8 @@ button:hover {
 }
 
 /* =========================================================
-   RESPONSIVE LAYOUT
+   NOVEL WORKSPACE
    ========================================================= */
-
-/*
-  On medium desktop and laptop screens, the first two panels
-  remain beside each other while the profile uses the full row.
-*/
-@media (max-width: 1350px) {
-  .layout {
-    grid-template-columns:
-      minmax(250px, 0.8fr) minmax(400px, 1.2fr);
-  }
-
-  .profilePanel {
-    grid-column: 1 / -1;
-  }
-
-  .aiWorkspace {
-    grid-template-columns: minmax(260px, 0.8fr) minmax(360px, 1.3fr);
-  }
-}
-
-/* Statistics use three columns on narrower screens */
-@media (max-width: 1200px) {
-  .statisticsGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .advancedFilterGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* AI interface stacks when its available width becomes limited */
-@media (max-width: 950px) {
-  .aiWorkspace {
-    grid-template-columns: 1fr;
-  }
-
-  .aiOutputPanel {
-    min-height: 360px;
-  }
-}
-
-/* Stack all application panels on tablets */
-@media (max-width: 850px) {
-  .layout {
-    grid-template-columns: 1fr;
-    padding: 12px;
-  }
-
-  .profilePanel {
-    grid-column: auto;
-  }
-
-  .statisticsSection {
-    margin: 12px 12px 0;
-  }
-}
-
-/* Statistics use two columns on smaller tablets */
-@media (max-width: 700px) {
-  .statisticsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .statisticsHeader,
-  .aiAssistantHeader,
-  .tagSectionHeader,
-  .graphSectionHeader {
-    flex-direction: column;
-  }
-
-  .topbar {
-    padding: 20px 16px;
-  }
-}
-
-/* Mobile form and AI adjustments */
-@media (max-width: 600px) {
-
-  .formGrid,
-  .filterGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .relationshipGraph {
-    height: 400px;
-  }
-
-  .aiControlPanel,
-  .aiOutputPanel {
-    padding: 14px;
-  }
-
-  .aiOutputPanel {
-    min-height: 330px;
-  }
-
-  .aiActionButtons,
-  .tagInputRow {
-    flex-direction: column;
-  }
-
-  .aiActionButtons button,
-  .tagInputRow button,
-  .tagAddButton {
-    width: 100%;
-  }
-
-  .searchSummary {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-
-/* Statistics use one column on very small screens */
-@media (max-width: 420px) {
-  .statisticsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .statisticsSection {
-    margin-inline: 10px;
-  }
-
-  .layout {
-    padding: 10px;
-  }
-}
 
 /* Main Novel Workspace container */
 .novelToolsSection {
@@ -1753,8 +1677,7 @@ button:hover {
 /* Two-column metadata form */
 .novelSettingsGrid {
   display: grid;
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -1813,8 +1736,7 @@ button:hover {
 /* Import/export card layout */
 .backupToolsGrid {
   display: grid;
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -1882,7 +1804,37 @@ button:hover {
   font-size: 14px;
 }
 
-/* Medium-screen settings layout */
+/* =========================================================
+   RESPONSIVE LAYOUT
+   ========================================================= */
+
+/*
+  Put the profile panel on a full-width second row before
+  the three-column layout becomes too narrow.
+*/
+@media (max-width: 1350px) {
+  .layout {
+    grid-template-columns:
+      minmax(240px, 0.8fr) minmax(340px, 1.2fr);
+  }
+
+  .profilePanel {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Statistics use three columns on narrower screens */
+@media (max-width: 1200px) {
+  .statisticsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .advancedFilterGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Medium-screen Novel Workspace layout */
 @media (max-width: 1050px) {
   .novelSettingsLayout {
     grid-template-columns: 1fr;
@@ -1890,6 +1842,51 @@ button:hover {
 
   .backupToolsGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* AI interface stacks when horizontal room becomes limited */
+@media (max-width: 950px) {
+  .aiWorkspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aiOutputPanel {
+    min-height: 360px;
+  }
+}
+
+/* Stack all application panels on tablets */
+@media (max-width: 850px) {
+  .layout {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .profilePanel {
+    grid-column: auto;
+  }
+
+  .statisticsSection {
+    margin: 12px 12px 0;
+  }
+}
+
+/* Statistics use two columns on smaller tablets */
+@media (max-width: 700px) {
+  .statisticsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statisticsHeader,
+  .aiAssistantHeader,
+  .tagSectionHeader,
+  .graphSectionHeader {
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: 20px 16px;
   }
 }
 
@@ -1919,26 +1916,57 @@ button:hover {
   }
 }
 
-/*
-  Allow long backend status or error messages to wrap.
-*/
-.aiStatusMessage {
-  overflow-wrap: anywhere;
+/* Mobile form, tags, and AI adjustments */
+@media (max-width: 600px) {
+
+  .formGrid,
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .relationshipGraph {
+    height: 400px;
+  }
+
+  .aiControlPanel,
+  .aiOutputPanel {
+    padding: 14px;
+  }
+
+  .aiOutputPanel {
+    min-height: 330px;
+  }
+
+  .aiActionButtons,
+  .tagInputRow {
+    flex-direction: column;
+  }
+
+  .aiActionButtons button,
+  .tagInputRow input,
+  .tagInputRow .primaryButton,
+  .tagInputRow button,
+  .tagAddButton {
+    width: 100%;
+  }
+
+  .searchSummary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
-/*
-  Prevent active request buttons from looking clickable.
-*/
-.aiActionButtons button:disabled {
-  cursor: not-allowed;
-  opacity: 0.58;
-}
+/* Statistics use one column on very small screens */
+@media (max-width: 420px) {
+  .statisticsGrid {
+    grid-template-columns: 1fr;
+  }
 
-/*
-  Highlight the real-AI badge slightly more strongly.
-*/
-.localGeneratorBadge {
-  border-color: rgba(95, 111, 255, 0.55);
-  background: rgba(95, 111, 255, 0.12);
-  color: #d9dcff;
+  .statisticsSection {
+    margin-inline: 10px;
+  }
+
+  .layout {
+    padding: 10px;
+  }
 }
